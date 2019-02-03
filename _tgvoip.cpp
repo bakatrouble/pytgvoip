@@ -36,8 +36,6 @@ VoIP::VoIP(bool creator, int _other_id, object call_id, object _handler, int _ca
     handler = _handler;
 }
 
-VoIP::VoIP(const VoIP &voip) : VoIP() {}
-
 void VoIP::init_voip_controller() {
     inst = new VoIPController();
     output_file = NULL;
@@ -64,7 +62,7 @@ void VoIP::init_voip_controller() {
     );
 }
 
-bool VoIP::discard(str reason, object rating, bool debug) {
+bool VoIP::discard(object reason, object rating, bool debug) {
     if (call_state == CALL_STATE_ENDED)
          return false;
 
@@ -82,10 +80,8 @@ bool VoIP::accept() {
 
     object call_id = _internal_storage.get("call_id");
     if (extract<bool>(handler.attr("accept_call")(call_id)) == false) {
-        string reason = "phoneCallDiscardReasonDisconnect";
-        object rating;
         bool debug = false;
-        handler.attr("discard_call")(call_id, reason, rating, debug);
+        handler.attr("discard_call")(call_id, NULL, NULL, debug);
         deinit_voip_controller();
         return false;
     }
@@ -117,10 +113,8 @@ void VoIP::deinit_voip_controller() {
 bool VoIP::start_the_magic() {
     if (state == STATE_WAIT_INIT_ACK) {
         object call_id = _internal_storage.get("call_id");
-        string reason = "phoneCallDiscardReasonDisconnect";
-        object rating;
         bool debug = false;
-        handler.attr("discard_call")(call_id, reason, rating, debug);
+        handler.attr("discard_call")(call_id, NULL, NULL, debug);
         deinit_voip_controller();
         return false;
     }
@@ -301,6 +295,10 @@ void VoIP::set_bitrate(int value) {
     inst->DebugCtl(1, value);
 }
 
+int VoIP::get_connection_max_layer() {
+    return inst->GetConnectionMaxLayer();
+}
+
 void VoIP::set_mic_mute(bool mute) {
     inst->SetMicMute(mute);
 }
@@ -368,72 +366,51 @@ void VoIP::parse_config() {
         cfg.statsDumpFilePath = stats_dump_file_path;
     }
 
-    dict shared_config = extract<dict>(configuration["shared_config"]);
-    map<string, string> copyconfig;
-    boost::python::list keys = shared_config.keys();
-    for (int i = 0; i < len(keys); ++i) {
-        extract<string> extracted_key(keys[i]);
-        if (!extracted_key.check())
-            continue;
-        string key = extracted_key;
-        object extracted_val = extract<object>(shared_config[key]);
-        string value = extract<string>(str(extracted_val));
-        copyconfig[key] = value;
-    }
-    ServerConfig::GetSharedInstance()->Update(copyconfig);
-    LOGD("=== Setting config ===")
+    ServerConfig::GetSharedInstance()->Update(extract<string>(configuration["shared_config"]));
     inst->SetConfig(cfg);
-    LOGD("=== Config set ===")
 
     char *key = (char *)malloc(256);
     string auth_key = extract<string>(configuration["auth_key"]);
     memcpy(key, auth_key.c_str(), 256);
     inst->SetEncryptionKey(key, (bool)_internal_storage["creator"]);
     free(key);
-    LOGD("=== Encryption key set ===")
 
     vector<Endpoint> eps;
     boost::python::list endpoints = extract<boost::python::list>(configuration["endpoints"]);
     for (int i = 0; i < len(endpoints); ++i) {
-        LOGD("=== Endpoints iteration ===")
         string ip = extract<string>(endpoints[i].attr("ip"));
         string ipv6 = extract<string>(endpoints[i].attr("ipv6"));
         string peer_tag = extract<string>(endpoints[i].attr("peer_tag"));
-        LOGD("=== IPs and peer_tag ===")
 
         IPv4Address v4addr(ip);
         IPv6Address v6addr("::0");
         unsigned char *pTag = (unsigned char *)malloc(16);
 
-        if (ipv6 != "")
+        if (!ipv6.empty())
             v6addr = IPv6Address(ipv6);
 
-        if (peer_tag != "")
+        if (!peer_tag.empty())
             memcpy(pTag, peer_tag.c_str(), 16);
-        LOGD("=== memcpy ===")
 
-        eps.push_back(Endpoint(extract<int64_t>(endpoints[i].attr("id")), extract<int32_t>(endpoints[i].attr("port")), v4addr, v6addr, Endpoint::TYPE_UDP_RELAY, pTag));
-        eps.push_back(Endpoint(extract<int64_t>(endpoints[i].attr("id")), extract<int32_t>(endpoints[i].attr("port")), v4addr, v6addr, Endpoint::TYPE_TCP_RELAY, pTag));
+        eps.push_back(Endpoint(extract<int64_t>(endpoints[i].attr("id")), extract<int16_t>(endpoints[i].attr("port")), v4addr, v6addr, Endpoint::UDP_RELAY, pTag));
+        eps.push_back(Endpoint(extract<int64_t>(endpoints[i].attr("id")), extract<int16_t>(endpoints[i].attr("port")), v4addr, v6addr, Endpoint::TCP_RELAY, pTag));
         free(pTag);
     }
-    LOGD("=== Endpoints built ===")
 
     inst->SetRemoteEndpoints(eps, extract<bool>(_internal_storage["protocol"]["udp_p2p"]), extract<int>(_internal_storage["protocol"]["max_layer"]));
-    LOGD("=== Endpoints set ===")
     inst->SetNetworkType(extract<int>(configuration["network_type"]));
-    LOGD("=== Network type set ===")
     if (configuration.has_key("proxy"))
         inst->SetProxy(
                 extract<int>(configuration["proxy"]["protocol"]),
                 extract<string>(configuration["proxy"]["address"]),
-                extract<int32_t>(configuration["proxy"]["port"]),
+                extract<int16_t>(configuration["proxy"]["port"]),
                 extract<string>(configuration["proxy"]["username"]),
                 extract<string>(configuration["proxy"]["password"])
         );
 }
 
 BOOST_PYTHON_MODULE(_tgvoip) {
-    class_<VoIP>("VoIP")
+    class_<VoIP, boost::noncopyable>("VoIP")
         .def(init<object, int, object, object, int, object>())
         .def("discard", &VoIP::discard)
         .def("accept", &VoIP::accept)
@@ -470,12 +447,14 @@ BOOST_PYTHON_MODULE(_tgvoip) {
         .def("close", &VoIP::close)
         .def("parse_config", &VoIP::parse_config)
 
+        .def("get_connection_max_layer", &VoIP::get_connection_max_layer)
+        
         .def_readwrite("configuration", &VoIP::configuration)
         .def_readwrite("storage", &VoIP::storage)
         .def_readwrite("_internal_storage", &VoIP::_internal_storage)
         .def_readwrite("handler", &VoIP::handler)
 
-        .setattr("STATE_CREATED", (int)STATE_CREATED)
+        .setattr("STATE_CREATED", (int)0)
         .setattr("STATE_WAIT_INIT", (int)STATE_WAIT_INIT)
         .setattr("STATE_WAIT_INIT_ACK", (int)STATE_WAIT_INIT_ACK)
         .setattr("STATE_ESTABLISHED", (int)STATE_ESTABLISHED)

@@ -35,7 +35,7 @@ namespace tgvoip {
 namespace boost {
     namespace python {
         bool hasattr(object o, string const name) {
-            return PyObject_HasAttrString(o.ptr(), name.c_str());
+            return (bool)PyObject_HasAttrString(o.ptr(), name.c_str());
         }
     }
 }
@@ -44,13 +44,10 @@ class VoIP {
 public:
     VoIP();
     VoIP(bool creator, int other_id, object call_id, object handler, int call_state, object protocol);
-    VoIP(const VoIP &voip);
     void init_voip_controller();
-    bool discard(str reason, object rating, bool debug);
+    bool discard(object reason, object rating, bool debug);
     bool accept();
     void deinit_voip_controller();
-//    void __wakeup();
-//    // Php::Value __sleep();
 
     bool start_the_magic();
 
@@ -77,6 +74,7 @@ public:
     void send_group_call_key(unsigned char *key);
     void debug_ctl(int request, int param);
     void set_bitrate(int bitrate);
+    int get_connection_max_layer();
 
     void set_mic_mute(bool mute);
     void set_handler(object handler);
@@ -84,7 +82,6 @@ public:
     object get_protocol();
     int get_state();
     bool is_playing();
-//    object is_destroyed();
     object when_created();
     bool is_creator();
     int get_other_id();
@@ -97,13 +94,11 @@ public:
     dict _internal_storage;
     object handler;
 
-    int state = STATE_CREATED;
+    int state = 0;
 
     bool playing = false;
-    bool destroyed = false;
 
     void parse_config();
-//    void parse_proxy_config();
     int other_id;
 
 private:
