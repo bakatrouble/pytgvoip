@@ -22,7 +22,7 @@ class PyrogramWrapper:
 
     def __init__(self, client: pyrogram.Client):
         self.client = client
-        client.add_handler(RawUpdateHandler(self._process_raw_update), -1)
+        client.add_handler(RawUpdateHandler(self._process_raw_update))
         self.voips = {}
         self.max_layer = VoIP().get_connection_max_layer()
 
@@ -46,7 +46,8 @@ class PyrogramWrapper:
                 voip = self.get_voip(pc.id)
                 if not voip:
                     raise pyrogram.StopPropagation
-                return voip.discard(pc.reason, None, pc.need_debug)
+                voip.discard(pc.reason, None, pc.need_debug)
+            raise pyrogram.ContinuePropagation
 
     def _get_protocol(self):
         return PhoneCallProtocol(self.min_layer, self.max_layer, True, True)
@@ -63,7 +64,7 @@ class PyrogramWrapper:
     def _discard_ended_voips(self):
         for voip in self.voips.values():
             if voip.get_call_state() == VoIP.CALL_STATE_ENDED:
-                voip.discard()
+                voip.discard(PhoneCallDiscardReasonDisconnect(), None, True)
 
     def _configure_voip(self, voip, call, bytes_key, key_fingerprint, visualization_part2):
         visualization = generate_visualization(bytes_key, visualization_part2)

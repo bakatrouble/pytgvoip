@@ -19,9 +19,9 @@ $ make
 ### Running examples
 Examples require tweaking (set app_id and app_hash, change username to call in make_call)
 
-Requires installed Pyrogram (from `raw-updates-swallowing` branch as of 2019-02-04): 
+Requires installed Pyrogram (from repo as of 2019-02-04, it uses some yet unreleased features): 
 ```bash
-$ pip install git+https://github.com/pyrogram/pyrogram/@raw-updates-swallowing#egg=pyrogram
+$ pip install git+https://github.com/pyrogram/pyrogram/#egg=pyrogram
 ```
 ```bash
 $ cd examples

@@ -80,6 +80,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-examples/session.session
+*.session
 *.raw
+*.mp3
+*.mp4
+*.wav
 unknown_errors.txt
