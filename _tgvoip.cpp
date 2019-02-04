@@ -138,27 +138,27 @@ void VoIP::recv_audio_frame(int16_t* data, size_t size) {
 void VoIP::send_audio_frame(int16_t *data, size_t size) {
     MutexGuard m(input_mutex);
 
-    if (!this->input_files.empty())
-    {
-        if ((read_input = fread(data, sizeof(int16_t), size, this->input_files.front())) != size)
-        {
+    if (!this->input_files.empty()) {
+        if ((read_input = fread(data, sizeof(int16_t), size, this->input_files.front())) != size) {
+            LOGI("Invalid size: %d, ferror=%d, feof=%d", read_input, ferror(this->input_files.front()), feof(this->input_files.front()));
             fclose(this->input_files.front());
             this->input_files.pop();
             memset(data + (read_input % size), 0, size - (read_input % size));
+            LOGI("Removed input file from %d", other_id);
+            if(this->input_files.empty()) {
+                LOGI("No input files left for %d, falling back to hold", other_id);
+            }
         }
         this->playing = true;
-    }
-    else
-    {
+    } else {
         this->playing = false;
-        if (!this->hold_files.empty())
-        {
-            if ((read_input = fread(data, sizeof(int16_t), size, this->hold_files.front())) != size)
-            {
+        if (!this->hold_files.empty()) {
+            if ((read_input = fread(data, sizeof(int16_t), size, this->hold_files.front())) != size) {
                 fseek(this->hold_files.front(), 0, SEEK_SET);
                 this->hold_files.push(this->hold_files.front());
                 this->hold_files.pop();
                 memset(data + (read_input % size), 0, size - (read_input % size));
+                LOGI("Looped hold stream for %d", other_id);
             }
         }
     }
@@ -343,6 +343,10 @@ void VoIP::close() {
     deinit_voip_controller();
 }
 
+void VoIP::set_shared_config(string conf) {
+    ServerConfig::GetSharedInstance()->Update(conf);
+}
+
 void VoIP::parse_config() {
     if (!configuration.has_key("auth_key"))
         return;
@@ -366,7 +370,7 @@ void VoIP::parse_config() {
         cfg.statsDumpFilePath = stats_dump_file_path;
     }
 
-    ServerConfig::GetSharedInstance()->Update(extract<string>(configuration["shared_config"]));
+    set_shared_config(extract<string>(configuration["shared_config"]));
     inst->SetConfig(cfg);
 
     char *key = (char *)malloc(256);
@@ -445,6 +449,7 @@ BOOST_PYTHON_MODULE(_tgvoip) {
         .def("get_call_id", &VoIP::get_call_id)
         .def("get_call_state", &VoIP::get_call_state)
         .def("close", &VoIP::close)
+        .def("set_shared_config", &VoIP::set_shared_config)
         .def("parse_config", &VoIP::parse_config)
 
         .def("get_connection_max_layer", &VoIP::get_connection_max_layer)

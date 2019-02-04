@@ -98,6 +98,7 @@ public:
 
     bool playing = false;
 
+    void set_shared_config(string conf);
     void parse_config();
     int other_id;
 

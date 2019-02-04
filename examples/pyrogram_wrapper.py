@@ -20,11 +20,15 @@ from _tgvoip import VoIP
 class PyrogramWrapper:
     min_layer = 65
 
-    def __init__(self, client: pyrogram.Client):
+    def __init__(self, client: pyrogram.Client, shared_config_callback=None):
         self.client = client
         client.add_handler(RawUpdateHandler(self._process_raw_update))
+        self.shared_config_callback = shared_config_callback
         self.voips = {}
-        self.max_layer = VoIP().get_connection_max_layer()
+        voip = VoIP()
+        self.max_layer = voip.get_connection_max_layer()
+        if shared_config_callback:
+            voip.set_shared_config(json.dumps(shared_config_callback({})))
 
     def _process_raw_update(self, cl, update, users, chats):
         if isinstance(update, UpdatePhoneCall):
@@ -70,7 +74,11 @@ class PyrogramWrapper:
         visualization = generate_visualization(bytes_key, visualization_part2)
         config = self.client.send(GetConfig())
         voip.set_visualization(visualization)
-        voip.configuration['shared_config'] = self.client.send(GetCallConfig()).data
+        call_config = self.client.send(GetCallConfig()).data
+        if callable(self.shared_config_callback):
+            voip.configuration['shared_config'] = json.dumps(self.shared_config_callback(json.loads(call_config)))
+        else:
+            voip.configuration['shared_config'] = call_config
         voip.configuration['endpoints'].extend([call.connection] + call.alternative_connections)
         voip.configuration.update({
             'recv_timeout': config.call_receive_timeout_ms / 1000,

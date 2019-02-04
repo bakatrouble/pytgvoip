@@ -33,6 +33,7 @@ add_definitions(
     -DTGVOIP_USE_DESKTOP_DSP
     -DTGVOIP_USE_CXX11_LIB
     -DTGVOIP_OTHER
+    -DTGVOIP_LOG_VERBOSITY=5
 )
 include_directories(
     ${Boost_INCLUDE_DIRS}

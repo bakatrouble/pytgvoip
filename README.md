@@ -17,17 +17,14 @@ $ make
 ```
 
 ### Running examples
-Examples require tweaking (set app_id and app_hash, change username to call in make_call)
+Examples require tweaking (set app_id and app_hash, change usernames)
 
-Requires installed Pyrogram (from repo as of 2019-02-04, it uses some yet unreleased features): 
-```bash
-$ pip install git+https://github.com/pyrogram/pyrogram/#egg=pyrogram
-```
+Requires installed Pyrogram v0.11.0+
 ```bash
 $ cd examples
 $ cp ../build/_tgvoip.so _tgvoip.so
 $ wget https://github.com/danog/MadelineProto/raw/master/input.raw  # download sample stream to play
-$ python make_call.py  # or receive_calls.py
+$ python make_call.py  # or receive_calls.py, prank.py
 ```
 
 ### Encoding audio streams
