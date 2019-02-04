@@ -46,7 +46,7 @@ class PyrogramWrapper:
                 voip = self.get_voip(pc.id)
                 if not voip:
                     raise pyrogram.StopPropagation
-                return voip.discard(str(pc.reason), None, pc.need_debug)
+                return voip.discard(pc.reason, None, pc.need_debug)
 
     def _get_protocol(self):
         return PhoneCallProtocol(self.min_layer, self.max_layer, True, True)
@@ -177,8 +177,7 @@ class PyrogramWrapper:
         return self.voips.get(call_id)
 
     def discard_call(self, call, reason=None, rating=None, debug=True):
-        if isinstance(reason, str):
-            # TODO: parse strings like '{"_": "telegram:PhoneCallDiscardReasonBusy"}'
+        if not reason:
             reason = PhoneCallDiscardReasonDisconnect()
         voip = self.get_voip(call.id)
         if not voip:
