@@ -11,8 +11,9 @@ service = VoIPFileStreamService(client)
 @service.on_incoming_call
 def process_call(call: VoIPIncomingFileStreamCall):
     call.accept()
-    call.play('ochinchin.raw')
-    call.play_on_hold(['ochinchin.raw'])
+    call.play('input.raw')
+    call.play_on_hold(['input.raw'])
+    call.set_output_file('output.raw')
 
 
 client.idle()
