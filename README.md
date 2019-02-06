@@ -3,7 +3,7 @@
 ### Installation
 Requires libcrypto, libpthread, libssl and libopus headers installed
 ```bash
-$ pip install git+https://github.com/bakatrouble/libtgvoip/
+$ pip install git+https://github.com/bakatrouble/pylibtgvoip/
 ```
 
 ### Running examples
