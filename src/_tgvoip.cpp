@@ -209,6 +209,6 @@ void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
 void VoIPController::recv_audio_frame_impl(py::bytes frame) {}
 
 
-void VoIPServerConfig::set_config(py::object /* cls */, std::string &json_str) {
+void VoIPServerConfig::set_config(std::string &json_str) {
     tgvoip::ServerConfig::GetSharedInstance()->Update(json_str);
 }

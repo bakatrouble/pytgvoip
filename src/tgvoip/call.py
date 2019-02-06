@@ -4,7 +4,7 @@ from typing import Union
 
 import pyrogram
 from pyrogram import RawUpdateHandler
-from pyrogram.api import functions, types
+from pyrogram.api import functions, types, errors
 from pyrogram.api.types.messages import DhConfig
 from tgvoip import *
 from tgvoip._utils import i2b, twoe1984, calc_fingerprint, b2i
@@ -28,7 +28,7 @@ class PyrogramVoIPCall:
         self.is_outgoing = None
         self.peer = None
         self.state = None
-        self.dhc = self._get_dhc()
+        self.dhc = self.get_dhc()
         self.a = None
         self.g_a = None
         self.g_a_hash = None
@@ -39,37 +39,37 @@ class PyrogramVoIPCall:
         self.auth_key_bytes = None
         self.key_fingerprint = None
         self.max_layer = VoIPController.CONNECTION_MAX_LAYER
-        self._update_handler = RawUpdateHandler(self._process_update)
+        self._update_handler = RawUpdateHandler(self.process_update)
         self.client.add_handler(self._update_handler, -1)
 
-    def _get_protocol(self):
+    def get_protocol(self):
         return types.PhoneCallProtocol(self.min_layer, self.max_layer, True, True)
 
-    def _get_dhc(self) -> DH:
+    def get_dhc(self) -> DH:
         return DH(self.client.send(functions.messages.GetDhConfig(0, 256)))
 
-    def _check_g(self, g_x: int, p: int) -> None:
+    def check_g(self, g_x: int, p: int) -> None:
         if not (1 < g_x < p - 1):
-            self._stop()
+            self.stop()
             raise RuntimeError('g_x is invalid (1 < g_x < p - 1 is false)')
         if not (twoe1984 < g_x < p - twoe1984):
-            self._stop()
+            self.stop()
             raise RuntimeError('g_x is invalid (2^1984 < g_x < p - 2^1984 is false)')
 
-    def _update_state(self, val: CallState):
+    def update_state(self, val: CallState):
         self.state = val
         self.ctrl.handle_state_change(val)
 
-    def _stop(self):
+    def stop(self):
         self.client.remove_handler(self._update_handler, -1)
         del self.ctrl
         self.ctrl = None
 
-    def _call_ended(self):
-        self._update_state(CallState.ENDED)
-        self._stop()
+    def call_ended(self):
+        self.update_state(CallState.ENDED)
+        self.stop()
 
-    def _process_update(self, _, update, users, chats):
+    def process_update(self, _, update, users, chats):
         if isinstance(update, types.UpdatePhoneCall):
             call = update.phone_call
             if not self.call or not call or call.id != self.call.id:
@@ -78,26 +78,19 @@ class PyrogramVoIPCall:
                 call.access_hash = self.call.access_hash
             self.call = call
             if isinstance(call, types.PhoneCallAccepted) and not self.auth_key:
-                self._process_accepted_call()
+                self.process_accepted_call()
             elif isinstance(call, types.PhoneCallDiscarded):
-                self._call_discarded()
+                self.call_discarded()
             elif isinstance(call, types.PhoneCall) and not self.auth_key:
-                # TODO: complete_call
-                if not call.g_a_or_b:
-                    print('g_a is null')
-                    return self._call_failed()
-                if self.g_a_hash != hashlib.sha256(call.g_a_or_b).digest():
-                    print('g_a_hash doesn\'t match')
-                    return self._call_failed()
-                self.g_a = call.g_a_or_b
+                self.process_accepted_outgoing_call()
         raise pyrogram.ContinuePropagation
 
-    def _call_failed(self, error: CallError = None):
+    def call_failed(self, error: CallError = None):
         if error is None:
             error = self.ctrl.get_last_error() if self.ctrl and self.ctrl_started else CallError.UNKNOWN
         print('Call', self.call_id, 'failed with error', error)
-        self._update_state(CallState.FAILED)
-        self._stop()
+        self.update_state(CallState.FAILED)
+        self.stop()
 
     def _initiate_encrypted_call(self):
         config = self.client.send(functions.help.GetConfig())  # type: types.Config
@@ -118,26 +111,26 @@ class PyrogramVoIPCall:
 
     # outgoing calls
     def start_outgoing_call(self, user_id: Union[int, str]):
-        self._update_state(CallState.REQUESTING)
+        self.update_state(CallState.REQUESTING)
         self.is_outgoing = True
         self.peer = self.client.resolve_peer(user_id)
         self.a = random.randint(2, self.dhc.p-1)
         self.g_a = pow(self.dhc.g, self.a, self.dhc.p)
-        self._check_g(self.g_a, self.dhc.p)
+        self.check_g(self.g_a, self.dhc.p)
         self.g_a_hash = hashlib.sha256(i2b(self.g_a)).digest()
         self.call = self.client.send(functions.phone.RequestCall(
             user_id=self.peer,
             random_id=random.randint(0, 0x7fffffff - 1),
             g_a_hash=self.g_a_hash,
-            protocol=self._get_protocol(),
+            protocol=self.get_protocol(),
         )).phone_call
-        self._update_state(CallState.WAITING)
+        self.update_state(CallState.WAITING)
         return self.call
 
-    def _process_accepted_call(self):
-        self._update_state(CallState.EXCHANGING_KEYS)
+    def process_accepted_call(self):
+        self.update_state(CallState.EXCHANGING_KEYS)
         self.g_b = b2i(self.call.g_b)
-        self._check_g(self.g_b, self.dhc.p)
+        self.check_g(self.g_b, self.dhc.p)
         self.auth_key = pow(self.g_b, self.a, self.dhc.p)
         self.auth_key_bytes = i2b(self.auth_key)
         self.key_fingerprint = calc_fingerprint(self.auth_key_bytes)
@@ -145,18 +138,70 @@ class PyrogramVoIPCall:
             key_fingerprint=self.key_fingerprint,
             peer=types.InputPhoneCall(self.call.id, self.call.access_hash),
             g_a=i2b(self.g_a),
-            protocol=self._get_protocol(),
+            protocol=self.get_protocol(),
         )).phone_call
         self._initiate_encrypted_call()
         return self.call
 
-    def _call_discarded(self):
+    def call_discarded(self):
         # TODO: call.need_debug
         need_rate = self.ctrl and VoIPServerConfig.config.get('bad_call_rating') and self.ctrl.need_rate()
         if isinstance(self.call.reason, types.PhoneCallDiscardReasonBusy):
-            self._update_state(CallState.BUSY)
-            self._stop()
+            self.update_state(CallState.BUSY)
+            self.stop()
         else:
-            self._call_ended()
+            self.call_ended()
         if self.call.need_rating or need_rate:
             pass  # TODO: rate
+
+    def accept(self) -> bool:
+        self.update_state(CallState.EXCHANGING_KEYS)
+        if not self.call:
+            print('call is null')
+            self.call_failed()
+            return False
+        self.b = random.randint(2, self.dhc.p-1)
+        self.g_b = pow(self.dhc.g, self.b, self.dhc.p)
+        self.check_g(self.g_b, self.dhc.p)
+        self.g_a_hash = self.call.g_a_hash
+        try:
+            call = self.client.send(functions.phone.AcceptCall(
+                peer=types.InputPhoneCall(self.call.id, self.call.access_hash),
+                g_b=i2b(self.g_b),
+                protocol=self.get_protocol()
+            )).phone_call
+        except errors.Error as e:
+            if e.CODE == 'CALL_ALREADY_ACCEPTED':
+                return True
+            elif e.CODE == 'CALL_ALREADY_DECLINED':
+                return False
+            raise e
+        if isinstance(call, types.PhoneCallDiscarded):
+            print('call is already discarded')
+            self.call_discarded()
+            return False
+        return True
+
+    def process_accepted_outgoing_call(self):
+        if not self.call.g_a_or_b:
+            print('g_a is null')
+            return self.call_failed()
+        if self.g_a_hash != hashlib.sha256(self.call.g_a_or_b).digest():
+            print('g_a_hash doesn\'t match')
+            return self.call_failed()
+        self.g_a = b2i(self.call.g_a_or_b)
+        self.check_g(self.g_a, self.dhc.p)
+        self.auth_key = pow(self.g_a, self.b, self.dhc.p)
+        self.auth_key_bytes = i2b(self.auth_key)
+        self.key_fingerprint = calc_fingerprint(self.auth_key_bytes)
+        if self.key_fingerprint != self.call.key_fingerprint:
+            print('fingerprints don\'t match')
+            return self.call_failed()
+        self._initiate_encrypted_call()
+
+    @classmethod
+    def build_incoming_call(cls, client, _call: types.PhoneCallRequested):
+        voip_call = cls(client)
+        voip_call.update_state(CallState.WAITING_INCOMING)
+        voip_call.call = _call
+        return voip_call

@@ -103,6 +103,7 @@ class VoIPController(_VoIPController):
         return os.path.abspath(os.path.join(self.logs_dir, fname))
 
     def get_log_file_path_for_call_id(self, call_id: int) -> str:
+        os.makedirs(self.logs_dir, exist_ok=True)
         # Java version cleans up old logs (*.log) for non-debug version here (leaves 20 latest)
         return os.path.abspath(os.path.join(self.logs_dir, '{}.log'.format(call_id)))
 
@@ -128,19 +129,52 @@ class VoIPController(_VoIPController):
 
 
 class VoIPServerConfig(_VoIPServerConfig):
-    config = {}
+    # default config
+    config = {
+        'audio_max_bitrate': 20000,
+        'audio_max_bitrate_gprs': 8000,
+        'audio_max_bitrate_edge': 16000,
+        'audio_max_bitrate_saving': 8000,
+        'audio_init_bitrate': 16000,
+        'audio_init_bitrate_gprs': 8000,
+        'audio_init_bitrate_edge': 8000,
+        'audio_init_bitrate_saving': 8000,
+        'audio_bitrate_step_incr': 1000,
+        'audio_bitrate_step_decr': 1000,
+        'audio_min_bitrate': 8000,
+        'relay_switch_threshold': 0.8,
+        'p2p_to_relay_switch_threshold': 0.6,
+        'relay_to_p2p_switch_threshold': 0.8,
+        'reconnecting_state_timeout': 2.0,
+        'rate_flags': 0xFFFFFFFF,
+        'rate_min_rtt': 0.6,
+        'rate_min_send_loss': 0.2,
+        'packet_loss_for_extra_ec': 0.02,
+        'max_unsent_stream_packets': 2,
+    }
 
     @staticmethod
     def set_config(_json: Union[str, dict]):
         try:
             if isinstance(_json, dict):
-                _json = json.dumps(dict)
+                _json = json.dumps(_json)
             VoIPServerConfig.config.update(json.loads(_json))
             _VoIPServerConfig.set_config(_json)
         except json.JSONDecodeError as e:
             print('Error parsing VoIP config', e, file=sys.stderr)
         except TypeError as e:
             print('Error building JSON', e, file=sys.stderr)
+
+    @staticmethod
+    def set_bitrate_config(init_bitrate: int = 16000, max_bitrate: int = 20000, min_bitrate: int = 8000,
+                           decrease_step: int = 1000, increase_step: int = 1000):
+        VoIPServerConfig.set_config({
+            'audio_init_bitrate': init_bitrate,
+            'audio_max_bitrate': max_bitrate,
+            'audio_min_bitrate': min_bitrate,
+            'audio_bitrate_step_decr': decrease_step,
+            'audio_bitrate_step_incr': increase_step,
+        })
 
 
 __all__ = ['NetType', 'DataSaving', 'CallState', 'CallError', 'Stats', 'Endpoint', 'VoIPController',

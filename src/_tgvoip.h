@@ -131,7 +131,7 @@ class PyVoIPController : public VoIPController {
 
 class VoIPServerConfig {
 public:
-    static void set_config(py::object cls, std::string &json_str);
+    static void set_config(std::string &json_str);
 };
 
 #endif
