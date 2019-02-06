@@ -11,30 +11,37 @@ PYBIND11_MODULE(_tgvoip, m) {
     });
 
     py::enum_<NetType>(m, "NetType")
-            .value("UNKNOWN", NetType::NET_UNKNOWN)
-            .value("GPRS", NetType::GPRS)
-            .value("EDGE", NetType::EDGE)
-            .value("NET_3G", NetType::NET_3G)
-            .value("HSPA", NetType::HSPA)
-            .value("LTE", NetType::LTE)
-            .value("WIFI", NetType::WIFI)
-            .value("ETHERNET", NetType::ETHERNET)
-            .value("OTHER_HIGH_SPEED", NetType::OTHER_HIGH_SPEED)
-            .value("OTHER_LOW_SPEED", NetType::OTHER_LOW_SPEED)
-            .value("DIALUP", NetType::DIALUP)
-            .value("OTHER_MOBILE", NetType::OTHER_MOBILE);
+            .value("UNKNOWN", NetType::NET_TYPE_UNKNOWN)
+            .value("GPRS", NetType::NET_TYPE_GPRS)
+            .value("EDGE", NetType::NET_TYPE_EDGE)
+            .value("NET_3G", NetType::NET_TYPE_3G)
+            .value("HSPA", NetType::NET_TYPE_HSPA)
+            .value("LTE", NetType::NET_TYPE_LTE)
+            .value("WIFI", NetType::NET_TYPE_WIFI)
+            .value("ETHERNET", NetType::NET_TYPE_ETHERNET)
+            .value("OTHER_HIGH_SPEED", NetType::NET_TYPE_OTHER_HIGH_SPEED)
+            .value("OTHER_LOW_SPEED", NetType::NET_TYPE_OTHER_LOW_SPEED)
+            .value("DIALUP", NetType::NET_TYPE_DIALUP)
+            .value("OTHER_MOBILE", NetType::NET_TYPE_OTHER_MOBILE);
 
     py::enum_<CallState>(m, "CallState")
-            .value("WAIT_INIT", CallState::WAIT_INIT)
-            .value("WAIT_INIT_ACK", CallState::WAIT_INIT_ACK)
-            .value("ESTABLISHED", CallState::ESTABLISHED)
-            .value("FAILED", CallState::FAILED)
-            .value("RECONNECTING", CallState::RECONNECTING);
+            .value("WAIT_INIT", CallState::STATE_WAIT_INIT)
+            .value("WAIT_INIT_ACK", CallState::STATE_WAIT_INIT_ACK)
+            .value("ESTABLISHED", CallState::STATE_ESTABLISHED)
+            .value("FAILED", CallState::STATE_FAILED)
+            .value("RECONNECTING", CallState::STATE_RECONNECTING);
 
     py::enum_<DataSaving>(m, "DataSaving")
-            .value("NEVER", DataSaving::NEVER)
-            .value("MOBILE", DataSaving::MOBILE)
-            .value("ALWAYS", DataSaving::ALWAYS);
+            .value("NEVER", DataSaving::DATA_SAVING_NEVER)
+            .value("MOBILE", DataSaving::DATA_SAVING_MOBILE)
+            .value("ALWAYS", DataSaving::DATA_SAVING_ALWAYS);
+
+    py::enum_<CallError>(m, "CallError")
+            .value("UNKNOWN", CallError::ERROR_UNKNOWN)
+            .value("INCOMPATIBLE", CallError::ERROR_INCOMPATIBLE)
+            .value("TIMEOUT", CallError::ERROR_TIMEOUT)
+            .value("AUDIO_IO", CallError::ERROR_AUDIO_IO)
+            .value("PROXY", CallError::ERROR_PROXY);
 
     py::class_<Stats>(m, "Stats")
             .def_readonly("bytes_sent_wifi", &Stats::bytes_sent_wifi)
@@ -72,6 +79,7 @@ PYBIND11_MODULE(_tgvoip, m) {
     py::class_<VoIPController, PyVoIPController>(m, "VoIPController")
             .def(py::init<>())
             .def(py::init<const std::string &>())
+            .def("init", &VoIPController::init)
             .def("start", &VoIPController::start)
             .def("connect", &VoIPController::connect)
             .def("set_proxy", &VoIPController::set_proxy)
@@ -98,4 +106,10 @@ PYBIND11_MODULE(_tgvoip, m) {
 
     py::class_<VoIPServerConfig>(m, "VoIPServerConfig")
             .def_static("set_config", &VoIPServerConfig::set_config);
+
+#ifdef VERSION_INFO
+    m.attr("__version__") = VERSION_INFO;
+#else
+    m.attr("__version__") = "dev";
+#endif
 }

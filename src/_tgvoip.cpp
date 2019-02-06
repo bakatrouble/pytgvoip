@@ -1,11 +1,18 @@
 #include "_tgvoip.h"
-
 #include <iostream>
 
 Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag)
     : id(id), ip(ip), ipv6(ipv6), port(port), peer_tag(peer_tag) {}
 
 VoIPController::VoIPController() {
+}
+
+VoIPController::VoIPController(const std::string &_persistent_state_file) : VoIPController() {
+    if (!_persistent_state_file.empty())
+        persistent_state_file = _persistent_state_file;
+}
+
+void VoIPController::init() {
     ctrl = new tgvoip::VoIPController();
     ctrl->implData = (void *)this;
     tgvoip::VoIPController::Callbacks callbacks {};
@@ -19,18 +26,23 @@ VoIPController::VoIPController() {
     callbacks.groupCallKeySent = nullptr;
     callbacks.upgradeToGroupCallRequested = nullptr;
     ctrl->SetCallbacks(callbacks);
-}
+    ctrl->SetAudioDataCallbacks(
+            [this](int16_t *buf, size_t size) {
+                this->send_audio_frame(buf, size);
+            },
+            [this](int16_t *buf, size_t size) {
+                this->recv_audio_frame(buf, size);
+            }
+    );
 
-VoIPController::VoIPController(const std::string &_persistent_state_file) : VoIPController() {
-    if (!_persistent_state_file.empty()) {
-        persistent_state_file = _persistent_state_file;
+    if (!persistent_state_file.empty()) {
         FILE *f = fopen(persistent_state_file.c_str(), "r");
         if (f) {
             fseek(f, 0, SEEK_END);
             auto len = static_cast<size_t>(ftell(f));
             fseek(f, 0, SEEK_SET);
             if(len<1024*512 && len>0){
-                char *fbuf = static_cast<char *>(malloc(len));
+                auto fbuf = static_cast<char *>(malloc(len));
                 fread(fbuf, 1, len, f);
                 std::vector<uint8_t> state(fbuf, fbuf+len);
                 free(fbuf);
@@ -77,9 +89,10 @@ void VoIPController::set_remote_endpoints(std::list<Endpoint> endpoints, bool al
         tgvoip::IPv6Address v6addr("::0");
         if (!ep.ipv6.empty())
             v6addr = tgvoip::IPv6Address(ep.ipv6);
+        std::string peer_tag = ep.peer_tag;
         unsigned char p_tag[16];
-        if (!ep.peer_tag.empty())
-            memcpy(p_tag, ep.peer_tag.c_str(), 16);
+        if (!peer_tag.empty())
+            memcpy(p_tag, peer_tag.c_str(), 16);
         eps.emplace_back(tgvoip::Endpoint(ep.id, ep.port, v4addr, v6addr,
                 tcp ? tgvoip::Endpoint::Type::TCP_RELAY : tgvoip::Endpoint::Type::UDP_RELAY, p_tag));
     }
@@ -125,8 +138,8 @@ long VoIPController::get_preferred_relay_id() {
     return ctrl->GetPreferredRelayID();
 }
 
-int VoIPController::get_last_error() {
-    return ctrl->GetLastError();
+CallError VoIPController::get_last_error() {
+    return CallError(ctrl->GetLastError());
 }
 
 Stats VoIPController::get_stats() {
@@ -175,6 +188,26 @@ void VoIPController::handle_state_change(CallState state) {
 void VoIPController::handle_signal_bars_change(int count) {
     throw py::not_implemented_error();
 }
+
+void VoIPController::send_audio_frame(int16_t *buf, size_t size) {
+    tgvoip::MutexGuard m(input_mutex);
+    char *frame = this->send_audio_frame_impl(sizeof(int16_t) * size);
+    if (frame != nullptr)
+        memcpy(buf, frame, sizeof(int16_t) * size);
+}
+
+char *VoIPController::send_audio_frame_impl(long len) { return (char *)""; }
+
+void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
+    tgvoip::MutexGuard m(output_mutex);
+    if (buf != nullptr) {
+        std::string frame((const char *) buf, sizeof(int16_t) * size);
+        this->recv_audio_frame_impl(frame);
+    }
+}
+
+void VoIPController::recv_audio_frame_impl(py::bytes frame) {}
+
 
 void VoIPServerConfig::set_config(py::object /* cls */, std::string &json_str) {
     tgvoip::ServerConfig::GetSharedInstance()->Update(json_str);

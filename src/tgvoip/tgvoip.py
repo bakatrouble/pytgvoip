@@ -2,40 +2,56 @@ import json
 import os
 import sys
 from datetime import datetime
+from typing import Union, List
 
 from _tgvoip import (
     NetType,
     DataSaving,
-    CallState,
+    CallState as _CallState,
+    CallError,
     Stats,
     Endpoint,
     VoIPController as _VoIPController,
-    VoIPServerConfig as _VoIPServerConfig
+    VoIPServerConfig as _VoIPServerConfig,
+    __version__
 )
 
-from _utils import get_real_elapsed_time
+from tgvoip._utils import get_real_elapsed_time
+
+
+class CallState(_CallState):
+    HANGING_UP = 10
+    ENDED = 11
+    EXCHANGING_KEYS = 12
+    WAITING = 13
+    REQUESTING = 14
+    WAITING_INCOMING = 15
+    RINGING = 16
+    BUSY = 17
 
 
 class VoIPController(_VoIPController):
     def __init__(self, persistent_state_file: str = '', debug=False, logs_dir='logs'):
+        _VoIPController.__init__(self, persistent_state_file)
         self.debug = debug
         self.logs_dir = logs_dir
         self.start_time = 0
-        super(VoIPController, self).__init__(persistent_state_file)
+        self.send_audio_frame_callback = None
+        self.recv_audio_frame_callback = None
+        self.init()
 
     def _parse_endpoint(self, obj) -> Endpoint:
         raise NotImplementedError()
 
-    def set_remote_endpoints(self, endpoints: list, allow_p2p: bool, tcp: bool, connection_max_layer: int):
+    def set_remote_endpoints(self, endpoints: List[Endpoint], allow_p2p: bool, tcp: bool, connection_max_layer: int):
         if not endpoints:
             raise ValueError('endpoints len is 0')
-        parsed_endpoints = [self._parse_endpoint(obj) for obj in endpoints]
-        for ep in parsed_endpoints:
+        for ep in endpoints:
             if ep.ip is None or not len(ep.ip):
                 raise ValueError('endpoint {} has empty/null ipv4'.format(ep))
             if ep.peer_tag is not None and len(ep.peer_tag) != 16:
                 raise ValueError('endpoint {} has peer_tag of wrong length'.format(ep))
-        super(VoIPController, self).set_remote_endpoints(parsed_endpoints, allow_p2p, tcp, connection_max_layer)
+        super(VoIPController, self).set_remote_endpoints(endpoints, allow_p2p, tcp, connection_max_layer)
 
     def set_encryption_key(self, key: bytes, is_outgoing: bool):
         if len(key) != 256:
@@ -95,17 +111,37 @@ class VoIPController(_VoIPController):
             raise ValueError('address can\'t be empty')
         super(VoIPController, self).set_proxy(address, port, username, password)
 
+    def set_send_audio_frame_callback(self, func):
+        self.send_audio_frame_callback = func
+
+    def send_audio_frame_impl(self, length: int):
+        if callable(self.send_audio_frame_callback):
+            return self.send_audio_frame_callback(length)
+        return b''
+
+    def set_recv_audio_frame_callback(self, func):
+        self.recv_audio_frame_callback = func
+
+    def recv_audio_frame_impl(self, frame: bytes):
+        if callable(self.recv_audio_frame_callback):
+            self.recv_audio_frame_callback(frame)
+
 
 class VoIPServerConfig(_VoIPServerConfig):
     config = {}
 
     @staticmethod
-    def set_config(json_string: str):
+    def set_config(_json: Union[str, dict]):
         try:
-            VoIPServerConfig.config = json.loads(json_string)
-            _VoIPServerConfig.set_config(json_string)
+            if isinstance(_json, dict):
+                _json = json.dumps(dict)
+            VoIPServerConfig.config.update(json.loads(_json))
+            _VoIPServerConfig.set_config(_json)
         except json.JSONDecodeError as e:
             print('Error parsing VoIP config', e, file=sys.stderr)
+        except TypeError as e:
+            print('Error building JSON', e, file=sys.stderr)
 
 
-__all__ = ['NetType', 'DataSaving', 'CallState', 'Stats', 'Endpoint', 'VoIPController', 'VoIPServerConfig']
+__all__ = ['NetType', 'DataSaving', 'CallState', 'CallError', 'Stats', 'Endpoint', 'VoIPController',
+           'VoIPServerConfig', '__version__']

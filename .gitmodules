@@ -1,6 +1,6 @@
-[submodule "libtgvoip"]
-	path = libtgvoip
-	url = https://github.com/grishka/libtgvoip
-[submodule "pybind11"]
-	path = pybind11
+[submodule "3rdparty/pybind11"]
+	path = 3rdparty/pybind11
 	url = https://github.com/pybind/pybind11/
+[submodule "3rdparty/libtgvoip"]
+	path = 3rdparty/libtgvoip
+	url = https://github.com/grishka/libtgvoip

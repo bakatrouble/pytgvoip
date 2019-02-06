@@ -70,3 +70,11 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+
+*.session
+*.raw
+*.mp3
+*.mp4
+*.wav
+unknown_errors.txt
+example/config.ini
