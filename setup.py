@@ -12,6 +12,17 @@ from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
 
+debug = len(sys.argv) > 1 and sys.argv[1] == "develop"
+
+
+def check_libraries():
+    args = 'gcc -lpthread -lopus -lcrypto -lssl'.split()
+    out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
+    match = re.findall(r'cannot find -l(\w+)', out)
+    if match:
+        raise RuntimeError('Following libraries are not installed: {}'.format(', '.join(match)))
+
+
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
@@ -31,6 +42,8 @@ class CMakeBuild(build_ext):
         #     if cmake_version < '3.1.0':
         #         raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
+        check_libraries()
+
         for ext in self.extensions:
             self.build_extension(ext)
 
@@ -39,7 +52,7 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
-        cfg = 'Debug' if self.debug else 'Release'
+        cfg = 'Debug' if debug else 'Release'
         build_args = ['--config', cfg]
 
         # if platform.system() == "Windows":
