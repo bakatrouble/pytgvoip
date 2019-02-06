@@ -4,8 +4,7 @@
 Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag)
     : id(id), ip(ip), ipv6(ipv6), port(port), peer_tag(peer_tag) {}
 
-VoIPController::VoIPController() {
-}
+VoIPController::VoIPController() {}
 
 VoIPController::VoIPController(const std::string &_persistent_state_file) : VoIPController() {
     if (!_persistent_state_file.empty())

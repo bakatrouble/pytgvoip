@@ -2,12 +2,17 @@ cmake_minimum_required(VERSION 3.13)
 project(pylibtgvoip)
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(Threads REQUIRED)
-add_subdirectory(3rdparty/pybind11)
+# find_package(Threads REQUIRED)
 add_definitions(-DTGVOIP_USE_CALLBACK_AUDIO_IO -DWEBRTC_POSIX -DWEBRTC_LINUX -DWEBRTC_APM_DEBUG_DUMP=0
-        -DWEBRTC_NS_FLOAT -DTGVOIP_USE_DESKTOP_DSP -DTGVOIP_USE_CXX11_LIB -DTGVOIP_OTHER -DTGVOIP_LOG_VERBOSITY=5)
+        -DWEBRTC_NS_FLOAT -DTGVOIP_USE_DESKTOP_DSP -DTGVOIP_USE_CXX11_LIB -DTGVOIP_OTHER)
+
+if(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
+    add_definitions(-DTGVOIP_LOG_VERBOSITY=1)
+endif()
+
+add_subdirectory(3rdparty/pybind11)
 include_directories(3rdparty/libtgvoip 3rdparty/libtgvoip/webrtc_dsp /usr/include/opus)
-link_libraries(Threads::Threads opus pthread stdc++ crypto ssl dl)
+link_libraries(opus crypto ssl pthread)  # stdc++ dl Threads::Threads
 
 pybind11_add_module(_tgvoip
         src/_tgvoip.cpp

@@ -38,7 +38,7 @@ class VoIPController(_VoIPController):
         self.start_time = 0
         self.send_audio_frame_callback = None
         self.recv_audio_frame_callback = None
-        self.init()
+        self._init()
 
     def _parse_endpoint(self, obj) -> Endpoint:
         raise NotImplementedError()

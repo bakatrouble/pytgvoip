@@ -79,7 +79,7 @@ PYBIND11_MODULE(_tgvoip, m) {
     py::class_<VoIPController, PyVoIPController>(m, "VoIPController")
             .def(py::init<>())
             .def(py::init<const std::string &>())
-            .def("init", &VoIPController::init)
+            .def("_init", &VoIPController::init)
             .def("start", &VoIPController::start)
             .def("connect", &VoIPController::connect)
             .def("set_proxy", &VoIPController::set_proxy)
