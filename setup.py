@@ -52,7 +52,7 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
-        cfg = 'Debug' if debug else 'Release'
+        cfg = 'DEBUG' if debug else 'RELEASE'
         build_args = ['--config', cfg]
 
         # if platform.system() == "Windows":

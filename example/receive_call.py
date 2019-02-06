@@ -23,21 +23,13 @@ client.start()
 
 f = open('output.raw', 'wb')
 f2 = open('ochinchin.raw', 'rb')
-
-
 def write(frame):
     f.write(frame)
-
-
 def read(length):
     return f2.read(length)
-
-
-@service.on_incoming_call()
+@service.on_incoming_call
 def process_call(call: PyrogramVoIPCall):
     call.ctrl.set_recv_audio_frame_callback(write)
     call.ctrl.set_send_audio_frame_callback(read)
     call.accept()
-
-
 client.idle()
