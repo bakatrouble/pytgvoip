@@ -79,6 +79,7 @@ setup(
     author='bakatrouble',
     author_email='bakatrouble@gmail.com',
     description='libtgvoip bindings for python',
+    dependency_links=['https://github.com/pyrogram/pyrogram/tarball/develop#egg=pyrogram'],
     long_description='',
     ext_modules=[CMakeExtension('_tgvoip')],
     packages=['tgvoip'],

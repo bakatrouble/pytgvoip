@@ -9,7 +9,7 @@ $ pip install git+https://github.com/bakatrouble/libtgvoip/
 ### Running examples
 Examples require tweaking (set app_id and app_hash, change usernames)
 
-Requires Pyrogram installed from repo (as of 2019-02-07)
+Requires Pyrogram installed from repo (as of 2019-02-07, should be installed automatically as dependency)
 ```bash
 $ cd example
 $ wget https://github.com/danog/MadelineProto/raw/master/input.raw  # download sample stream to play
