@@ -3,7 +3,7 @@
 ## Installation
 Requires libssl and libopus installed
 
-#### Linux
+### Linux
 ##### Dependencies
 
 Debian-based distributions:
@@ -21,7 +21,7 @@ $ pacman -S openssl opus
 $ pip install git+https://github.com/bakatrouble/pylibtgvoip/
 ```
 
-#### MacOS
+### MacOS
 ##### Dependencies
 ```bash
 $ brew install openssl opus
@@ -33,7 +33,7 @@ Requires manual pointing to openssl headers location
 $ OPENSSL_ROOT_DIR=/usr/local/opt/openssl pip install git+https://github.com/bakatrouble/pylibtgvoip/
 ```
 
-#### Windows
+### Windows
 TBD
 
 ## Running examples
