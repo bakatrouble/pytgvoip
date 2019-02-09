@@ -2,7 +2,7 @@
 [Join community](https://t.me/pylibtgvoip) if you need help or wish to contribute
 
 ## Installation
-Requires cmake, libssl and libopus installed
+Requires cmake and libtgvoip (instructions are TBD) installed
 
 ### Windows
 Not working on Windows right now, help needed
@@ -12,29 +12,23 @@ Not working on Windows right now, help needed
 
 Debian-based distributions:
 ```bash
-$ apt install cmake openssl libssl-dev libopus0 libopus-dev
+$ apt install cmake g++
 ```
 
 Archlinux-based distributions:
 ```bash
-$ pacman -S cmake openssl opus
-```
-
-#### Install
-```bash
-$ pip install git+https://github.com/bakatrouble/pylibtgvoip/
+$ pacman -S cmake gcc
 ```
 
 ### MacOS
 #### Dependencies
 ```bash
-$ brew install cmake openssl opus
+$ brew install cmake
 ```
 
-#### Install
-Requires manual pointing to openssl headers location
+### Install
 ```bash
-$ OPENSSL_ROOT_DIR=/usr/local/opt/openssl pip install git+https://github.com/bakatrouble/pylibtgvoip/
+$ pip install git+https://github.com/bakatrouble/pylibtgvoip/
 ```
 
 ## Running examples
