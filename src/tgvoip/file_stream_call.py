@@ -73,8 +73,9 @@ class VoIPFileStreamCallMixin(VoIPCallBase):
         elif len(self.hold_files):
             frame = self.hold_files[0].read(length)
             if len(frame) != length:
-                self.input_files.rotate(-1)
-        return frame.ljust(length, b'\0')
+                self.hold_files[0].seek(0)
+                self.hold_files.rotate(-1)
+        return frame
 
     def _write_frame(self, frame: bytes) -> None:
         if self.output_file:

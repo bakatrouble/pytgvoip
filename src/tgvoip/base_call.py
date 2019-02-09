@@ -81,7 +81,10 @@ class VoIPCallBase:
             raise RuntimeError('g_x is invalid (2^1984 < g_x < p - 2^1984 is false)')
 
     def stop(self) -> None:
-        self.client.remove_handler(self._update_handler, -1)
+        try:
+            self.client.remove_handler(self._update_handler, -1)
+        except ValueError:
+            pass
         del self.ctrl
         self.ctrl = None
 

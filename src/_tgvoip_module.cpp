@@ -1,5 +1,6 @@
 #include "_tgvoip.h"
 #include <sstream>
+#include <chrono>
 
 PYBIND11_MODULE(_tgvoip, m) {
     py::register_exception_translator([](std::exception_ptr p) {

@@ -116,9 +116,10 @@ class VoIPController(_VoIPController):
         self.send_audio_frame_callback = func
 
     def send_audio_frame_impl(self, length: int):
+        frame = b''
         if callable(self.send_audio_frame_callback):
-            return self.send_audio_frame_callback(length)
-        return b''
+            frame = self.send_audio_frame_callback(length)
+        return frame.ljust(length, b'\0')
 
     def set_recv_audio_frame_callback(self, func):
         self.recv_audio_frame_callback = func

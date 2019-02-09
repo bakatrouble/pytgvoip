@@ -1,5 +1,6 @@
 #include "_tgvoip.h"
 #include <iostream>
+// #include <chrono>
 
 Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag)
     : id(id), ip(ip), ipv6(ipv6), port(port), peer_tag(peer_tag) {}
@@ -190,19 +191,25 @@ void VoIPController::handle_signal_bars_change(int count) {
 
 void VoIPController::send_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(input_mutex);
+    // auto start = std::chrono::high_resolution_clock::now();
     char *frame = this->send_audio_frame_impl(sizeof(int16_t) * size);
     if (frame != nullptr)
         memcpy(buf, frame, sizeof(int16_t) * size);
+    // auto finish = std::chrono::high_resolution_clock::now();
+    // std::cout << "send: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
 char *VoIPController::send_audio_frame_impl(long len) { return (char *)""; }
 
 void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(output_mutex);
+    // auto start = std::chrono::high_resolution_clock::now();
     if (buf != nullptr) {
         std::string frame((const char *) buf, sizeof(int16_t) * size);
         this->recv_audio_frame_impl(frame);
     }
+    // auto finish = std::chrono::high_resolution_clock::now();
+    // std::cout << "recv: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
 void VoIPController::recv_audio_frame_impl(py::bytes frame) {}
