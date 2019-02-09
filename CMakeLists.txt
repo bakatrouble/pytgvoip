@@ -11,7 +11,7 @@ add_definitions(-DTGVOIP_USE_CALLBACK_AUDIO_IO -DWEBRTC_APM_DEBUG_DUMP=0
         -DWEBRTC_NS_FLOAT -DTGVOIP_USE_DESKTOP_DSP -DTGVOIP_USE_CXX11_LIB -DTGVOIP_OTHER)
 
 if(WIN32)
-        add_definitions(-DWEBRTC_LINUX)
+        add_definitions(-DWEBRTC_WIN)
 elseif(UNIX)
         if(APPLE)
                 add_definitions(-DWEBRTC_POSIX -DWEBRTC_MAC)
