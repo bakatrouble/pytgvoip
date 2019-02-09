@@ -335,7 +335,7 @@ list(APPEND SOURCES
 if(APPLE)
         list(APPEND SOURCES
                 3rdparty/libtgvoip/os/darwin/AudioUnitIO.cpp
-                3rdparty/libtgvoip/os/darwin/DarwinSpecific.m
+                3rdparty/libtgvoip/os/darwin/DarwinSpecific.mm
                 3rdparty/libtgvoip/os/darwin/TGLogWrapper.m
                 3rdparty/libtgvoip/webrtc_dsp/rtc_base/logging_mac.mm
         )
