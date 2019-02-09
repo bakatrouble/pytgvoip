@@ -55,14 +55,14 @@ class CMakeBuild(build_ext):
         cfg = 'DEBUG' if debug else 'RELEASE'
         build_args = ['--config', cfg]
 
-        # if platform.system() == "Windows":
-        #     cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-        #     if sys.maxsize > 2**32:
-        #         cmake_args += ['-A', 'x64']
-        #     build_args += ['--', '/m']
-        # else:
-        cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-        build_args += ['--', '-j{}'.format(multiprocessing.cpu_count() + 1)]
+        if platform.system() == "Windows":
+            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
+            if sys.maxsize > 2**32:
+                cmake_args += ['-A', 'x64']
+            build_args += ['--', '/m:{}'.format(multiprocessing.cpu_count() + 1)]
+        else:
+            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
+            build_args += ['--', '-j{}'.format(multiprocessing.cpu_count() + 1)]
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
