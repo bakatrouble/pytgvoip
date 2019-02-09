@@ -28,7 +28,6 @@ endif()
 
 add_subdirectory(3rdparty/pybind11)
 include_directories(3rdparty/libtgvoip 3rdparty/libtgvoip/webrtc_dsp ${OPUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${THREADS_INCLUDE_DIR})
-link_libraries(${OPUS_LIBRARIES} ${OPENSSL_LIBRARIES} ${THREADS_LIBRARIES})  # stdc++ dl
 
 list(APPEND SOURCES
         src/_tgvoip.cpp
@@ -332,6 +331,13 @@ list(APPEND SOURCES
         3rdparty/libtgvoip/webrtc_dsp/modules/audio_processing/utility/ooura_fft_neon.cc
 )
 
+list(APPEND LIBRARIES
+        ${OPUS_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${THREADS_LIBRARIES}
+)
+
+
 if(APPLE)
         list(APPEND SOURCES
                 3rdparty/libtgvoip/os/darwin/AudioUnitIO.cpp
@@ -339,6 +345,12 @@ if(APPLE)
                 3rdparty/libtgvoip/os/darwin/TGLogWrapper.m
                 3rdparty/libtgvoip/webrtc_dsp/rtc_base/logging_mac.mm
         )
+
+        list(APPEND LIBRARIES
+                "-framework Foundation"
+                "-framework CoreFoundation"
+        )
 endif()
 
+link_libraries(${LIBRARIES})  # stdc++ dl
 pybind11_add_module(_tgvoip ${SOURCES})
