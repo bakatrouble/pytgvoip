@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.13)
 project(pylibtgvoip)
 set(CMAKE_CXX_STANDARD 14)
 
+if(UNIX AND NOT APPLE)
+        set(LINUX TRUE)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 find_package(Threads REQUIRED)
@@ -12,12 +16,10 @@ add_definitions(-DTGVOIP_USE_CALLBACK_AUDIO_IO -DWEBRTC_APM_DEBUG_DUMP=0
 
 if(WIN32)
         add_definitions(-DWEBRTC_WIN)
-elseif(UNIX)
-        if(APPLE)
-                add_definitions(-DWEBRTC_POSIX -DWEBRTC_MAC)
-        else()
-                add_definitions(-DWEBRTC_POSIX -DWEBRTC_LINUX)
-        endif()
+elseif(LINUX)
+        add_definitions(-DWEBRTC_POSIX -DWEBRTC_LINUX)
+elseif(APPLE)
+        add_definitions(-DWEBRTC_POSIX -DWEBRTC_MAC)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -28,7 +30,7 @@ add_subdirectory(3rdparty/pybind11)
 include_directories(3rdparty/libtgvoip 3rdparty/libtgvoip/webrtc_dsp ${OPUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${THREADS_INCLUDE_DIR})
 link_libraries(${OPUS_LIBRARIES} ${OPENSSL_LIBRARIES} ${THREADS_LIBRARIES})  # stdc++ dl
 
-pybind11_add_module(_tgvoip
+list(APPEND SOURCES
         src/_tgvoip.cpp
         src/_tgvoip_module.cpp
         3rdparty/libtgvoip/VoIPController.cpp
@@ -329,3 +331,11 @@ pybind11_add_module(_tgvoip
         3rdparty/libtgvoip/webrtc_dsp/modules/audio_processing/ns/nsx_core_neon.c
         3rdparty/libtgvoip/webrtc_dsp/modules/audio_processing/utility/ooura_fft_neon.cc
 )
+
+if(APPLE)
+        list(APPEND SOURCES
+                3rdparty/libtgvoip/os/darwin/AudioUnitIO.cpp
+        )
+endif()
+
+pybind11_add_module(_tgvoip ${SOURCES})
