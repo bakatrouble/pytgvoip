@@ -52,11 +52,6 @@ pybind11_add_module(_tgvoip
         3rdparty/libtgvoip/video/VideoSource.cpp
         3rdparty/libtgvoip/video/VideoRenderer.cpp
         3rdparty/libtgvoip/json11.cpp
-        3rdparty/libtgvoip/os/linux/AudioInputALSA.cpp
-        3rdparty/libtgvoip/os/linux/AudioOutputALSA.cpp
-        3rdparty/libtgvoip/os/linux/AudioOutputPulse.cpp
-        3rdparty/libtgvoip/os/linux/AudioInputPulse.cpp
-        3rdparty/libtgvoip/os/linux/AudioPulse.cpp
         3rdparty/libtgvoip/webrtc_dsp/system_wrappers/source/field_trial.cc
         3rdparty/libtgvoip/webrtc_dsp/system_wrappers/source/metrics.cc
         3rdparty/libtgvoip/webrtc_dsp/system_wrappers/source/cpu_features.cc
