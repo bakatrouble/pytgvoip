@@ -1,7 +1,8 @@
 # pylibtgvoip
+[Join community](https://t.me/pylibtgvoip) if you need help or wish to contribute
 
 ## Installation
-Requires libssl and libopus installed
+Requires cmake, libssl and libopus installed
 
 ### Windows
 Not working on Windows right now, help needed
@@ -11,12 +12,12 @@ Not working on Windows right now, help needed
 
 Debian-based distributions:
 ```bash
-$ apt install openssl libssl-dev libopus0 libopus-dev
+$ apt install cmake openssl libssl-dev libopus0 libopus-dev
 ```
 
 Archlinux-based distributions:
 ```bash
-$ pacman -S openssl opus
+$ pacman -S cmake openssl opus
 ```
 
 #### Install
@@ -27,7 +28,7 @@ $ pip install git+https://github.com/bakatrouble/pylibtgvoip/
 ### MacOS
 #### Dependencies
 ```bash
-$ brew install openssl opus
+$ brew install cmake openssl opus
 ```
 
 #### Install
