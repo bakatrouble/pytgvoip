@@ -173,12 +173,28 @@ bool VoIPController::need_rate() {
     return ctrl->NeedRate();
 }
 
-std::string VoIPController::get_version(py::object /* cls */) {
-    return tgvoip::VoIPController::GetVersion();
+std::vector<tgvoip::AudioInputDevice> VoIPController::enumerate_audio_inputs() {
+    return tgvoip::VoIPController::EnumerateAudioInputs();
 }
 
-int VoIPController::connection_max_layer(py::object /* cls */) {
-    return tgvoip::VoIPController::GetConnectionMaxLayer();
+std::vector<tgvoip::AudioOutputDevice> VoIPController::enumerate_audio_outputs() {
+    return tgvoip::VoIPController::EnumerateAudioOutputs();
+}
+
+void VoIPController::set_current_audio_input(std::string &id) {
+    ctrl->SetCurrentAudioInput(id);
+}
+
+void VoIPController::set_current_audio_output(std::string &id) {
+    ctrl->SetCurrentAudioOutput(id);
+}
+
+std::string VoIPController::get_current_audio_input_id() {
+    return ctrl->GetCurrentAudioInputID();
+}
+
+std::string VoIPController::get_current_audio_output_id() {
+    return ctrl->GetCurrentAudioOutputID();
 }
 
 void VoIPController::handle_state_change(CallState state) {
@@ -213,6 +229,14 @@ void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
 }
 
 void VoIPController::recv_audio_frame_impl(py::bytes frame) {}
+
+std::string VoIPController::get_version(py::object /* cls */) {
+    return tgvoip::VoIPController::GetVersion();
+}
+
+int VoIPController::connection_max_layer(py::object /* cls */) {
+    return tgvoip::VoIPController::GetConnectionMaxLayer();
+}
 
 
 void VoIPServerConfig::set_config(std::string &json_str) {
