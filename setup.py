@@ -16,7 +16,7 @@ debug = len(sys.argv) > 1 and sys.argv[1] == "develop"
 
 
 def check_libraries():
-    args = 'gcc -lpthread -lopus -lcrypto -lssl'.split()
+    args = 'gcc -ltgvoip'.split()
     out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
     match = re.findall(r'cannot find -l(\w+)', out)
     if match:
