@@ -2,7 +2,7 @@
 [Join community](https://t.me/pylibtgvoip) if you need help or wish to contribute
 
 ## Installation
-Requires cmake and libtgvoip (instructions are TBD) installed
+Requires cmake and libtgvoip ([build instructions](README.libtgvoip.md)) installed
 
 ### Windows
 Not working on Windows right now, help needed
@@ -38,7 +38,7 @@ Requires Pyrogram installed from repo (as of 2019-02-07, should be installed aut
 ```bash
 $ cd example
 $ wget https://github.com/danog/MadelineProto/raw/master/input.raw  # download sample stream to play
-$ python make_call.py  # or receive_call.py
+$ python make_call.py  # or receive_call.py, alsa.py
 ```
 
 ## Encoding audio streams

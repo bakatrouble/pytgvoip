@@ -1,0 +1,22 @@
+--- Makefile.am	2019-02-05 18:58:18.289737824 +0300
++++ MakefileARM.am	2019-02-10 01:25:09.663933337 +0300
+@@ -365,9 +365,7 @@
+ ./webrtc_dsp/common_audio/vad/webrtc_vad.c \
+ ./webrtc_dsp/common_audio/vad/vad_filterbank.c \
+ ./webrtc_dsp/common_audio/vad/vad_core.c \
+-./webrtc_dsp/common_audio/vad/vad_gmm.c \
+-webrtc_dsp/common_audio/signal_processing/complex_bit_reverse.c \
+-webrtc_dsp/common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor.c
++./webrtc_dsp/common_audio/vad/vad_gmm.c
+ 
+ if TARGET_OS_OSX
+ CFLAGS += -DWEBRTC_MAC
+@@ -395,7 +393,7 @@
+ if TARGET_CPU_ARM
+ SRC += \
+ webrtc_dsp/common_audio/signal_processing/complex_bit_reverse_arm.S \
+-webrtc_dsp/common_audio/signal_processing/spl_sqrt_floor_arm.S
++webrtc_dsp/common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor_arm.S
+ if TARGET_CPU_ARMV7
+ CFLAGS += -mfpu=neon -mfloat-abi=hard
+ CCASFLAGS += -mfpu=neon -mfloat-abi=hard

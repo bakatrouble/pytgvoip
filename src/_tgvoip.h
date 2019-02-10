@@ -4,8 +4,8 @@
 #include <iostream>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include "VoIPController.h"
-#include "VoIPServerConfig.h"
+#include <tgvoip/VoIPController.h>
+#include <tgvoip/VoIPServerConfig.h>
 
 namespace pybind11 {
     class not_implemented_error : public std::exception {};
