@@ -7,8 +7,8 @@ from tgvoip._utils import i2b, b2i, twoe1984, get_real_elapsed_time
 
 class DH:
     def __init__(self, dhc: types.messages.DhConfig):
-        self.p: int = b2i(dhc.p)
-        self.g: int = dhc.g
+        self.p = b2i(dhc.p)
+        self.g = dhc.g
         self.resp = dhc
 
 
