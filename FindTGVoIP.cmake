@@ -9,12 +9,25 @@ if(TGVOIP_INCLUDE_DIR)
         set(TGVOIP_FIND_QUIETLY TRUE)
 endif(TGVOIP_INCLUDE_DIR)
 
+set(FIND_TGVOIP_PATHS
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local
+        /usr
+        /sw
+        /opt/local
+        /opt/csw
+        /opt
+)
+
 find_path(TGVOIP_INCLUDE_DIR
         VoIPController.h
         PATH_SUFFIXES tgvoip
+        PATHS ${FIND_TGVOIP_PATHS}
 )
 find_library(TGVOIP_LIBRARY
         NAMES tgvoip tgvoip_static libtgvoip libtgvoip_static
+        PATHS ${FIND_TGVOIP_PATHS}
 )
 
 message(STATUS ${TGVOIP_INCLUDE_DIR})
