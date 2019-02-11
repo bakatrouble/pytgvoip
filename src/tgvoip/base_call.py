@@ -35,6 +35,9 @@ class VoIPCallBase:
         self.g_b_hash = None
         self.auth_key = None
         self.key_fingerprint = None
+        self.call_started_handlers = []
+        self.call_discarded_handlers = []
+        self.call_ended_handlers = []
 
         if use_proxy_if_available and client.proxy:
             proxy = self.client.proxy
@@ -57,6 +60,24 @@ class VoIPCallBase:
         if isinstance(call, types.PhoneCallDiscarded):
             self.call_discarded()
             raise pyrogram.StopPropagation
+
+    def on_call_started(self, func: callable) -> callable:  # well, the conversation has started
+        self.call_started_handlers.append(func)
+        return func
+
+    def on_call_discarded(self, func: callable) -> callable:  # call was discarded, not necessarily started before
+        self.call_discarded_handlers.append(func)
+        return func
+
+    def on_call_ended(self, func: callable) -> callable:  # call was discarded with non-busy reason
+                                                          # (was started and then discarded?)
+        self.call_ended_handlers.append(func)
+        return func
+
+    def on_call_state_changed(self, func: callable) -> callable:
+        if callable(func):
+            self.ctrl.call_state_changed_handlers.append(lambda state: func(self, state))
+        return func
 
     @property
     def auth_key_bytes(self) -> bytes:
@@ -103,6 +124,9 @@ class VoIPCallBase:
         self.update_state(CallState.FAILED)
         self.stop()
 
+        for handler in self.call_ended_handlers:
+            callable(handler) and handler(self)
+
     def call_discarded(self):
         # TODO: call.need_debug
         need_rate = self.ctrl and VoIPServerConfig.config.get('bad_call_rating') and self.ctrl.need_rate()
@@ -113,6 +137,9 @@ class VoIPCallBase:
             self.call_ended()
         if self.call.need_rating or need_rate:
             pass  # TODO: rate
+
+        for handler in self.call_discarded_handlers:
+            callable(handler) and handler(self)
 
     def discard_call(self, reason=None):
         # TODO: rating
@@ -141,3 +168,6 @@ class VoIPCallBase:
         self.ctrl.connect()
         self.ctrl_started = True
         self.update_state(CallState.ESTABLISHED)
+
+        for handler in self.call_started_handlers:
+            callable(handler) and handler(self)

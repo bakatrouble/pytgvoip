@@ -29,6 +29,12 @@ class VoIPOutgoingCall(VoIPCallBase):
         )).phone_call
         self.update_state(CallState.WAITING)
 
+        self.call_accepted_handlers = []
+
+    def on_call_accepted(self, func: callable) -> callable:  # the call was accepted by other party
+        self.call_accepted_handlers.append(func)
+        return func
+
     def process_update(self, _, update, users, chats) -> None:
         super(VoIPOutgoingCall, self).process_update(_, update, users, chats)
         if isinstance(self.call, types.PhoneCallAccepted) and not self.auth_key:
@@ -37,6 +43,9 @@ class VoIPOutgoingCall(VoIPCallBase):
         raise pyrogram.ContinuePropagation
 
     def call_accepted(self) -> None:
+        for handler in self.call_accepted_handlers:
+            callable(handler) and handler(self)
+
         self.update_state(CallState.EXCHANGING_KEYS)
         self.g_b = b2i(self.call.g_b)
         self.check_g(self.g_b, self.dhc.p)

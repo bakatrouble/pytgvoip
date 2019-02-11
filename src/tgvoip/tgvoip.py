@@ -38,6 +38,7 @@ class VoIPController(_VoIPController):
         self.start_time = 0
         self.send_audio_frame_callback = None
         self.recv_audio_frame_callback = None
+        self.call_state_changed_handlers = []
         self._init()
 
     def _parse_endpoint(self, obj) -> Endpoint:
@@ -62,7 +63,9 @@ class VoIPController(_VoIPController):
     def handle_state_change(self, state: CallState):
         if state == CallState.ESTABLISHED and self.start_time:
             self.start_time = get_real_elapsed_time()
-        # TODO: listeners
+
+        for handler in self.call_state_changed_handlers:
+            callable(handler) and handler(state)
 
     # native code callback
     def handle_signal_bars_change(self, count: int):

@@ -12,6 +12,7 @@ from tgvoip.base_call import VoIPCallBase
 class VoIPIncomingCall(VoIPCallBase):
     def __init__(self, call: types.PhoneCallRequested, *args, **kwargs):
         super(VoIPIncomingCall, self).__init__(*args, **kwargs)
+        self.call_accepted_handlers = []
         self.update_state(CallState.WAITING_INCOMING)
         self.call = call
 
@@ -21,6 +22,10 @@ class VoIPIncomingCall(VoIPCallBase):
             self.call_accepted()
             raise pyrogram.StopPropagation
         raise pyrogram.ContinuePropagation
+
+    def on_call_accepted(self, func: callable) -> callable:  # telegram acknowledged that you've accepted the call
+        self.call_accepted_handlers.append(func)
+        return func
 
     def accept(self) -> bool:
         self.update_state(CallState.EXCHANGING_KEYS)
@@ -50,6 +55,9 @@ class VoIPIncomingCall(VoIPCallBase):
         return True
 
     def call_accepted(self) -> None:
+        for handler in self.call_accepted_handlers:
+            callable(handler) and handler(self)
+
         if not self.call.g_a_or_b:
             print('g_a is null')
             self.call_failed()

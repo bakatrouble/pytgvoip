@@ -38,5 +38,5 @@ class VoIPService:
             if isinstance(call, types.PhoneCallRequested):
                 voip_call = self.get_incoming_call_class()(call, client=self.client)
                 for handler in self.incoming_call_handlers:
-                    handler(voip_call)
+                    callable(handler) and handler(voip_call)
         raise pyrogram.ContinuePropagation
