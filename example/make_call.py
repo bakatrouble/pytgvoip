@@ -11,4 +11,11 @@ call = voip_service.start_call('@bakatrouble')
 call.play('input.raw')
 call.play_on_hold(['input.raw'])
 call.set_output_file('output.raw')
+
+
+@call.on_call_state_changed
+def state_changed(call, state):
+    print('State changed:', call, state)
+
+
 client.idle()
