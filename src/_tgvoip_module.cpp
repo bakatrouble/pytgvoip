@@ -79,11 +79,25 @@ PYBIND11_MODULE(_tgvoip, m) {
 
     py::class_<tgvoip::AudioInputDevice>(m, "AudioInputDevice")
             .def_readonly("_id", &tgvoip::AudioInputDevice::id)
-            .def_readonly("display_name", &tgvoip::AudioInputDevice::displayName);
+            .def_readonly("display_name", &tgvoip::AudioInputDevice::displayName)
+            .def("__repr__", [](const tgvoip::AudioInputDevice &d) {
+                std::ostringstream repr;
+                repr << "<_tgvoip.AudioInputDevice ";
+                repr << "_id=\"" << d.id << "\" ";
+                repr << "display_name=\"" << d.displayName << "\">";
+                return repr.str();
+            });
 
     py::class_<tgvoip::AudioOutputDevice>(m, "AudioOutputDevice")
             .def_readonly("_id", &tgvoip::AudioOutputDevice::id)
-            .def_readonly("display_name", &tgvoip::AudioOutputDevice::displayName);
+            .def_readonly("display_name", &tgvoip::AudioOutputDevice::displayName)
+            .def("__repr__", [](const tgvoip::AudioOutputDevice &d) {
+                std::ostringstream repr;
+                repr << "<_tgvoip.AudioOutputDevice ";
+                repr << "_id=\"" << d.id << "\" ";
+                repr << "display_name=\"" << d.displayName << "\">";
+                return repr.str();
+            });
 
     py::class_<VoIPController, PyVoIPController>(m, "VoIPController")
             .def(py::init<>())
