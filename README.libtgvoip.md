@@ -5,7 +5,18 @@ It might be available from official repositories, otherwise you must build it ma
 Requires `libopus` and `libssl` installed
 
 ### Windows
-Not working on Windows right now, help needed
+Not working on Windows right now, help needed (following are just notes)
+
+First clone and build openssl and opus in Telegram/Libraries
+([guide](https://github.com/telegramdesktop/tdesktop/blob/dev/docs/building-msvc.md))
+and replace `libtgvoip.gyp` with [this file](https://gist.github.com/bakatrouble/4f763e8e149c7c2806686f142fd3e4fb)
+```batch
+cd ...Telegram/ThirdParty/libtgvoip
+gyp -D OS=win --depth=./tmp --format ninja libtgvoip.gyp
+gyp -D OS=win --depth=./tmp --format msvs-ninja libtgvoip.gyp
+cd tmp
+ninja -C out/Release
+```
 
 ### Linux
 #### Dependencies
