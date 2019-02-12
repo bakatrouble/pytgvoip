@@ -12,9 +12,8 @@ First clone and build openssl and opus in Telegram/Libraries
 and replace `libtgvoip.gyp` with [this file](https://gist.github.com/bakatrouble/4f763e8e149c7c2806686f142fd3e4fb)
 ```batch
 cd ...Telegram/ThirdParty/libtgvoip
-gyp -D OS=win --depth=./tmp --format ninja libtgvoip.gyp
-gyp -D OS=win --depth=./tmp --format msvs-ninja libtgvoip.gyp
-cd tmp
+gyp -D OS=win --depth=. --format ninja libtgvoip.gyp
+gyp -D OS=win --depth=. --format msvs-ninja libtgvoip.gyp
 ninja -C out/Release
 ```
 

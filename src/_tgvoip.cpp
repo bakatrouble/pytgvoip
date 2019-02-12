@@ -112,8 +112,8 @@ void VoIPController::set_mic_mute(bool mute) {
 }
 
 void VoIPController::set_config(double init_timeout, double recv_timeout, DataSaving data_saving_mode, bool enable_aec,
-                                bool enable_ns, bool enable_agc, const std::string &log_file_path,
-                                const std::string &status_dump_path, bool log_packet_stats) {
+                                bool enable_ns, bool enable_agc, std::string &log_file_path,
+                                std::string &status_dump_path, bool log_packet_stats) {
     tgvoip::VoIPController::Config cfg;
     cfg.initTimeout = init_timeout;
     cfg.recvTimeout = recv_timeout;

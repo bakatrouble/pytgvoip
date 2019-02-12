@@ -81,7 +81,7 @@ public:
     void set_network_type(NetType type);
     void set_mic_mute(bool mute);
     void set_config(double recv_timeout, double init_timeout, DataSaving data_saving_mode, bool enable_aec,
-            bool enable_ns, bool enable_agc, const std::string &log_file_path, const std::string &status_dump_path,
+            bool enable_ns, bool enable_agc, std::string &log_file_path, std::string &status_dump_path,
             bool log_packet_stats);
     void debug_ctl(int request, int param);
     long get_preferred_relay_id();

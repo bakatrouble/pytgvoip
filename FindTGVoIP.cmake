@@ -26,7 +26,7 @@ find_path(TGVOIP_INCLUDE_DIR
         PATHS ${FIND_TGVOIP_PATHS}
 )
 find_library(TGVOIP_LIBRARY
-        NAMES tgvoip tgvoip_static libtgvoip libtgvoip_static
+        NAMES tgvoip tgvoip_static libtgvoip libtgvoip_static libtgvoip.dll
         PATHS ${FIND_TGVOIP_PATHS}
 )
 
