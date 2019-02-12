@@ -18,6 +18,8 @@ set(FIND_TGVOIP_PATHS
         /opt/local
         /opt/csw
         /opt
+        $ENV{TGVOIP_LIBRARY_ROOT}
+        $ENV{TGVOIP_INCLUDE_ROOT}
 )
 
 find_path(TGVOIP_INCLUDE_DIR

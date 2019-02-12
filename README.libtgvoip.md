@@ -9,7 +9,23 @@ Not working on Windows right now, help needed (following are just notes)
 
 First clone and build openssl and opus in Telegram/Libraries
 ([guide](https://github.com/telegramdesktop/tdesktop/blob/dev/docs/building-msvc.md))
-and replace `libtgvoip.gyp` with [this file](https://gist.github.com/bakatrouble/4f763e8e149c7c2806686f142fd3e4fb)
+and replace `libtgvoip.gyp` with [this file](https://gist.github.com/bakatrouble/377bcb11b90a472415b19af6217a2d7d)
+
+Then add `__declspec(dllexport)` to following symbols:
+* VoIPServerConfig.h
+   * class ServerConfig
+* VoIPController.h
+   * class Endpoint
+   * class AudioOutputDevice
+   * class AudioInputDevice
+   * class VoIPController
+* threading.h
+   * class Mutex
+   * class MutexGuard
+* NetworkSocket.h
+   * class IPv4Address
+   * class IPv6Address
+
 ```batch
 cd ...Telegram/ThirdParty/libtgvoip
 gyp -D OS=win --depth=. --format ninja libtgvoip.gyp
