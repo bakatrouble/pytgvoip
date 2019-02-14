@@ -1,0 +1,103 @@
+version: 0.0.{build}
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+max_jobs: 2
+
+image: Visual Studio 2017
+platform: x64
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    # - PYTHON: "C:\\Python33"
+    #   PYTHON_VERSION: "3.3.x"
+    #   PYTHON_ARCH: "32"
+    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    # - PYTHON: "C:\\Python33-x64"
+    #   PYTHON_VERSION: "3.3.x"
+    #   PYTHON_ARCH: "64"
+    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    # - PYTHON: "C:\\Python34"
+    #   PYTHON_VERSION: "3.4.x"
+    #   PYTHON_ARCH: "32"
+    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    # - PYTHON: "C:\\Python34-x64"
+    #   PYTHON_VERSION: "3.4.x"
+    #   PYTHON_ARCH: "64"
+    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+clone_folder: c:\projects\pylibtgvoip
+
+install:
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - python --version
+  - python -c "import struct; print(struct.calcsize('P') * 8)"
+  - python -m pip install wheel pip -U
+  - appveyor DownloadFile "https://ci.appveyor.com/api/projects/bakatrouble/libtgvoip/artifacts/out/Release/libtgvoip.dll.zip?job=%LIBTGVOIP_JOB%"
+  - 7z x libtgvoip.dll.zip
+  - git submodule update --init --recursive
+  - git clone https://github.com/bakatrouble/libtgvoip/ 3rdparty/libtgvoip
+  - cd 3rdparty/libtgvoip
+  - git checkout msvc_static
+  - cd ../..
+
+build_script:
+  - set TGVOIP_INCLUDE_ROOT=c:/projects/pylibtgvoip/3rdparty/libtgvoip
+  - set TGVOIP_LIBRARY_ROOT=c:/projects/pylibtgvoip
+  - python setup.py build
+
+after_build:
+  - python setup.py bdist_wheel
+  - python setup.py bdist_wininst
+  - python setup.py bdist_msi
+  - ps: ls dist
+
+artifacts:
+  - path: dist\*

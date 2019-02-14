@@ -24,7 +24,7 @@ set(FIND_TGVOIP_PATHS
 
 find_path(TGVOIP_INCLUDE_DIR
         VoIPController.h
-        PATH_SUFFIXES tgvoip
+        PATH_SUFFIXES tgvoip libtgvoip
         PATHS ${FIND_TGVOIP_PATHS}
 )
 find_library(TGVOIP_LIBRARY

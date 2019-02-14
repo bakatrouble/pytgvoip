@@ -42,7 +42,8 @@ class CMakeBuild(build_ext):
             if cmake_version < '3.1.0':
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
-        check_libraries()
+        if platform.system() != 'Windows':
+            check_libraries()
 
         for ext in self.extensions:
             self.build_extension(ext)
@@ -52,7 +53,7 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
-        cfg = 'DEBUG' if debug else 'RELEASE'
+        cfg = 'Debug' if debug else 'Release'
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
@@ -73,6 +74,10 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
+data_files = []
+if platform.system() == 'Windows':
+    data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
+
 setup(
     name='tgvoip',
     version='0.0.1',
@@ -86,6 +91,7 @@ setup(
     packages=['tgvoip'],
     package_dir={'tgvoip': os.path.join('src', 'tgvoip')},
     package_data={'': [os.path.join('src', '_tgvoip.pyi')]},
-    cmdclass=dict(build_ext=CMakeBuild),
+    data_files=data_files,
+    cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
 )
