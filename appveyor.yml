@@ -15,15 +15,15 @@ environment:
     secure: bBLT+ICiuwrkYZEBrL++Jw==
 
   matrix:
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "64"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
-
     - PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "32"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5.x"
@@ -62,7 +62,7 @@ install:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
-  - python -m pip install wheel pip -U
+  - python -m pip install wheel pip twine -U
   - appveyor DownloadFile "https://ci.appveyor.com/api/projects/bakatrouble/libtgvoip/artifacts/out/Release/libtgvoip.dll.zip?job=%LIBTGVOIP_JOB%"
   - 7z x libtgvoip.dll.zip
   - git submodule update --init --recursive
@@ -90,9 +90,8 @@ deploy_script:
   - echo username=bakatrouble                        >> %USERPROFILE%\\.pypirc
   - echo password=%PYPI_PASSWORD%                    >> %USERPROFILE%\\.pypirc
   # upload to pypi for windows
-  - set PATH=%BK_PATH%
   - set HOME=%USERPROFILE%
-  - ps: If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") { Invoke-Expression "twine upload --skip-existing dist/*.whl" 2>$null } Else { write-output "Not on a tag on master, won't deploy to pypi"}
+  - twine upload --skip-existing dist/*.whl 2>$null
   - echo "Finished Artifact Deployment"
 
 artifacts:
