@@ -5,7 +5,7 @@
 Requires cmake and libtgvoip ([build instructions](README.libtgvoip.md)) installed
 
 ### Windows
-Not working on Windows right now, help needed
+Pre-built packages are available here: [![Build status](https://ci.appveyor.com/api/projects/status/l0rwtrhhulrkb07x?svg=true)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip)
 
 ### Linux
 #### Dependencies
