@@ -31,9 +31,6 @@ from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
 
-debug = len(sys.argv) > 1 and sys.argv[1] == "develop"
-
-
 def check_libraries():
     args = 'gcc -ltgvoip'.split()
     out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
@@ -75,7 +72,7 @@ class CMakeBuild(build_ext):
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
-        cfg = 'Debug' if debug else 'Release'
+        cfg = 'Release'
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
@@ -99,8 +96,9 @@ class CMakeBuild(build_ext):
 def get_version():
     with open('src/tgvoip/__init__.py', encoding='utf-8') as f:
         version = re.findall(r"__version__ = '(.+)'", f.read())[0]
-        if os.environ.get('BUILD') is not None:
+        if os.environ.get('BUILD') is None:
             version += '.develop'
+        return version
 
 
 def get_long_description():

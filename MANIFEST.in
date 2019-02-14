@@ -1,0 +1,3 @@
+include COPYING COPYING.lesser NOTICE CMakeLists.txt
+recursive-include 3rdparty/pybind11 *
+recursive-include src *.py *.pyi *.cpp *.h *.hpp *.cmake
