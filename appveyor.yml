@@ -4,8 +4,7 @@ branches:
   only:
     - master
 
-skip_tags: true
-max_jobs: 2
+skip_non_tags: true
 
 image: Visual Studio 2017
 platform: x64
@@ -95,8 +94,6 @@ build_script:
 
 after_build:
   - python setup.py bdist_wheel
-  - python setup.py bdist_wininst
-  - python setup.py bdist_msi
   - ps: ls dist
 
 artifacts:
