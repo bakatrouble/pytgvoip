@@ -1,3 +1,14 @@
+# pytgvoip
+Examples require tweaking (set app_id and app_hash, change usernames)
+
+## Running examples
+
+```bash
+$ cd example
+$ wget https://github.com/danog/MadelineProto/raw/master/input.raw  # download sample stream to play
+$ python make_call.py  # or receive_call.py, alsa.py
+```
+
 ### make_call.py
 Makes outgoing calls, plays `input.raw` in loop to the callee and records callee's voice to `output.raw`
 

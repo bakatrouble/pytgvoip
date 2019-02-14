@@ -1,48 +1,61 @@
-# pylibtgvoip
-[Join community](https://t.me/pylibtgvoip) if you need help or wish to contribute
+# pytgvoip
+**Telegram VoIP Library for Python**
 
-## Installation
-Requires cmake and libtgvoip ([build instructions](README.libtgvoip.md)) installed
+[Community](https://t.me/pytgvoip)
 
-### Windows
-Pre-built packages are available here: [![Build status](https://ci.appveyor.com/api/projects/status/l0rwtrhhulrkb07x?svg=true)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip)
+Supported MTProto frameworks: [Pyrogram](https://github.com/pyrogram/pyrogram/)
 
-### Linux
-#### Dependencies
+```python
+from pyrogram import Client
+from tgvoip import VoIPFileStreamService
 
-Debian-based distributions:
-```bash
-$ apt install cmake g++
+app = Client('account')
+app.start()
+
+service = VoIPFileStreamService(app, receive_calls=False)
+call = service.start_call('@bakatrouble')
+call.play('input.raw')
+call.play_on_hold(['input.raw'])
+call.set_output_file('output.raw')
+
+@call.on_call_ended
+def call_ended(call):
+    app.stop()
+
+app.idle()
 ```
 
-Archlinux-based distributions:
-```bash
-$ pacman -S cmake gcc
-```
+**PytgVoIP** is a [Telegram](https://telegram.org/) VoIP library written in Python and C++.
 
-### MacOS
-#### Dependencies
-```bash
-$ brew install cmake
-```
+It uses [libtgvoip](https://github.com/grishka/libtgvoip) (a library used in official clients) 
+for voice encoding and transmission, and [pybind11](https://github.com/pybind/pybind11) for simple 
+generation of Python extension written in C++.
 
-### Install
-```bash
-$ pip install git+https://github.com/bakatrouble/pylibtgvoip/
-```
+## Features
+* Making and receiving Telegram calls
+* Python callbacks for sending and receiving audio stream frames allow flexible control (see `alsa.py` example which uses system audio devices)
+* Included classes that use files for audio playback/record
+* Pre-built Windows packages: [![Build status](https://ci.appveyor.com/api/projects/status/l0rwtrhhulrkb07x?svg=true)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip)
 
-## Running examples
-Examples require tweaking (set app_id and app_hash, change usernames)
+## Requirements
+* Python 3.4 or higher
+* A [Telegram API key](https://docs.pyrogram.ml/start/ProjectSetup#api-keys)
 
-Requires Pyrogram installed from repo (as of 2019-02-07, should be installed automatically as dependency)
-```bash
-$ cd example
-$ wget https://github.com/danog/MadelineProto/raw/master/input.raw  # download sample stream to play
-$ python make_call.py  # or receive_call.py, alsa.py
-```
+Linux, MacOS: (use binary wheels from PyPI for Windows)
+* [libtgvoip](docs/libtgvoip.md)
+* CMake, C++11-compatible compiler, Python headers
+
+## Installing
+```pip3 install pytgvoip```
+
 
 ## Encoding audio streams
+Streams consumed by `libtgvoip` should be encoded in 16-bit signed PCM audio.
 ```bash
 $ ffmpeg -i input.mp3 -f s16le -ac 1 -ar 48000 -acodec pcm_s16le input.raw  # encode
 $ ffmpeg -f s16le -ac 1 -ar 48000 -acodec pcm_s16le -i output.raw output.mp3  # decode
 ```
+
+## Copyright & License
+* Copyright (C) 2019 [bakatrouble](https://github.com/bakatrouble)
+* Licensed under the terms of the [GNU Lesser General Public License v3 or later (LGPLv3+)](COPYING.lesser)

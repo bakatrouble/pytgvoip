@@ -29,3 +29,5 @@ from tgvoip.file_stream_call import VoIPFileStreamCallMixin, VoIPIncomingFileStr
 __all__ = ['VoIPService', 'VoIPIncomingCall', 'VoIPOutgoingCall', 'VoIPFileStreamCallMixin',
            'VoIPIncomingFileStreamCall', 'VoIPOutgoingFileStreamCall', 'VoIPFileStreamService']
 __all__ += tgvoip_all
+
+__version__ = '0.0.1'

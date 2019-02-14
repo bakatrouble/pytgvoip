@@ -119,12 +119,12 @@ public:
     int get_peer_capabilities();
     bool need_rate();
 
-    static std::vector<tgvoip::AudioInputDevice> enumerate_audio_inputs();
+    /* static std::vector<tgvoip::AudioInputDevice> enumerate_audio_inputs();
     static std::vector<tgvoip::AudioOutputDevice> enumerate_audio_outputs();
     void set_current_audio_input(std::string &id);
     void set_current_audio_output(std::string &id);
     std::string get_current_audio_input_id();
-    std::string get_current_audio_output_id();
+    std::string get_current_audio_output_id(); */
 
     // callbacks
     virtual void handle_state_change(CallState state);

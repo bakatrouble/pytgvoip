@@ -98,7 +98,7 @@ PYBIND11_MODULE(_tgvoip, m) {
                 return repr.str();
             });
 
-    py::class_<tgvoip::AudioInputDevice>(m, "AudioInputDevice")
+    /* py::class_<tgvoip::AudioInputDevice>(m, "AudioInputDevice")
             .def_readonly("_id", &tgvoip::AudioInputDevice::id)
             .def_readonly("display_name", &tgvoip::AudioInputDevice::displayName)
             .def("__repr__", [](const tgvoip::AudioInputDevice &d) {
@@ -118,7 +118,7 @@ PYBIND11_MODULE(_tgvoip, m) {
                 repr << "_id=\"" << d.id << "\" ";
                 repr << "display_name=\"" << d.displayName << "\">";
                 return repr.str();
-            });
+            }); */
 
     py::class_<VoIPController, PyVoIPController>(m, "VoIPController")
             .def(py::init<>())
@@ -142,12 +142,12 @@ PYBIND11_MODULE(_tgvoip, m) {
             .def("set_echo_cancellation_strength", &VoIPController::set_echo_cancellation_strength)
             .def("get_peer_capabilities", &VoIPController::get_peer_capabilities)
             .def("need_rate", &VoIPController::need_rate)
-            .def("enumerate_audio_inputs", &VoIPController::enumerate_audio_inputs)
+            /* .def("enumerate_audio_inputs", &VoIPController::enumerate_audio_inputs)
             .def("enumerate_audio_outputs", &VoIPController::enumerate_audio_outputs)
             .def("set_current_audio_input", &VoIPController::set_current_audio_input)
             .def("set_current_audio_output", &VoIPController::set_current_audio_output)
             .def("get_current_audio_input_id", &VoIPController::get_current_audio_input_id)
-            .def("get_current_audio_output_id", &VoIPController::get_current_audio_output_id)
+            .def("get_current_audio_output_id", &VoIPController::get_current_audio_output_id) */
             .def("handle_state_change", &VoIPController::handle_state_change)
             .def("handle_signal_bars_change", &VoIPController::handle_signal_bars_change)
             .def_readonly("persistent_state_file", &VoIPController::persistent_state_file)

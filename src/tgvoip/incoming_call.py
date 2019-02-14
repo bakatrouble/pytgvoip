@@ -35,7 +35,7 @@ class VoIPIncomingCall(VoIPCallBase):
         self.update_state(CallState.WAITING_INCOMING)
         self.call = call
 
-    def process_update(self, _, update, users, chats) -> None:
+    def process_update(self, _, update, users, chats):
         super(VoIPIncomingCall, self).process_update(_, update, users, chats)
         if isinstance(self.call, types.PhoneCall) and not self.auth_key:
             self.call_accepted()
@@ -61,12 +61,14 @@ class VoIPIncomingCall(VoIPCallBase):
                 g_b=i2b(self.g_b),
                 protocol=self.get_protocol()
             )).phone_call
-        except errors.CallAlreadyAccepted:
-            self.stop()
-            return True
-        except errors.CallAlreadyDeclined:
-            self.call_discarded()
-            return False
+        except errors.Error as e:
+            if e.ID == 'CALL_ALREADY_ACCEPTED':
+                self.stop()
+                return True
+            elif e.ID == 'CALL_ALREADY_DECLINED':
+                self.call_discarded()
+                return False
+            raise e
         if isinstance(self.call, types.PhoneCallDiscarded):
             print('Call is already discarded')
             self.call_discarded()

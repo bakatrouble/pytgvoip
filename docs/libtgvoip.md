@@ -4,35 +4,21 @@ It might be available from official repositories, otherwise you must build it ma
 
 Requires `libopus` and `libssl` installed
 
-### Windows
-[![Build status](https://ci.appveyor.com/api/projects/status/hiugc2951g7u98r3?svg=true)](https://ci.appveyor.com/project/bakatrouble/libtgvoip) https://github.com/bakatrouble/libtgvoip/tree/msvc_static
+## Windows
+[![Build status](https://ci.appveyor.com/api/projects/status/hiugc2951g7u98r3?svg=true)](https://ci.appveyor.com/project/bakatrouble/libtgvoip)
 
-Build notes:
+https://github.com/bakatrouble/libtgvoip
 
-Add `__declspec(dllexport)` to following symbols:
-* VoIPServerConfig.h
-   * class ServerConfig
-* VoIPController.h
-   * class Endpoint
-   * class AudioOutputDevice
-   * class AudioInputDevice
-   * class VoIPController
-* threading.h
-   * class Mutex
-   * class MutexGuard
-* NetworkSocket.h
-   * class IPv4Address
-   * class IPv6Address
-
+`target_arch` might be either `ia32` or `x64`
 ```batch
-cd ...Telegram/ThirdParty/libtgvoip
-gyp -D OS=win --depth=. --format ninja libtgvoip.gyp
+set GYP_DEFINES=OS=win target_arch=ia32
+gyp -D OS=win -D  --depth=. --format ninja libtgvoip.gyp
 gyp -D OS=win --depth=. --format msvs-ninja libtgvoip.gyp
 ninja -C out/Release
 ```
 
-### Linux
-#### Dependencies
+## Linux
+### Dependencies
 
 Debian-based distributions:
 ```bash
@@ -44,7 +30,7 @@ Archlinux-based distributions:
 $ pacman -S make autoconf automake gcc openssl opus
 ```
 
-#### Build and install
+### Build and install
 ```bash
 $ cd /tmp
 $ git clone https://github.com/grishka/libtgvoip/
@@ -59,13 +45,13 @@ $ make  # add "-jN" flag for multithreaded build, N=(cpu core count + 1) is reco
 $ make install
 ```
 
-### MacOS
-#### Dependencies
+## MacOS
+### Dependencies
 ```bash
 $ brew install make autoconf automake gcc g++ openssl opus  # most of those should be installed with XCode Tools
 ```
 
-#### Build and install
+### Build and install
 The same as for Linux, but you should manually point the location of libopenssl headers:
  
 ```bash

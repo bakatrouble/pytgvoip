@@ -10,36 +10,18 @@ image: Visual Studio 2017
 platform: x64
 
 environment:
-  matrix:
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+  BUILD: true
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
+  matrix:
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
-    # - PYTHON: "C:\\Python33"
-    #   PYTHON_VERSION: "3.3.x"
-    #   PYTHON_ARCH: "32"
-    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
-
-    # - PYTHON: "C:\\Python33-x64"
-    #   PYTHON_VERSION: "3.3.x"
-    #   PYTHON_ARCH: "64"
-    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
-
-    # - PYTHON: "C:\\Python34"
-    #   PYTHON_VERSION: "3.4.x"
-    #   PYTHON_ARCH: "32"
-    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
-
-    # - PYTHON: "C:\\Python34-x64"
-    #   PYTHON_VERSION: "3.4.x"
-    #   PYTHON_ARCH: "64"
-    #   LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
 
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5.x"
@@ -71,7 +53,7 @@ environment:
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
-clone_folder: c:\projects\pylibtgvoip
+clone_folder: c:\projects\pytgvoip
 
 install:
   - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
@@ -88,8 +70,8 @@ install:
   - cd ../..
 
 build_script:
-  - set TGVOIP_INCLUDE_ROOT=c:/projects/pylibtgvoip/3rdparty/libtgvoip
-  - set TGVOIP_LIBRARY_ROOT=c:/projects/pylibtgvoip
+  - set TGVOIP_INCLUDE_ROOT=3rdparty/libtgvoip
+  - set TGVOIP_LIBRARY_ROOT=.
   - python setup.py build
 
 after_build:

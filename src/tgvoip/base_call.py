@@ -114,7 +114,7 @@ class VoIPCallBase:
 
     def check_g(self, g_x: int, p: int) -> None:
         if not (1 < g_x < p - 1):
-            self.stop()
+            self.call_discarded()
             raise RuntimeError('g_x is invalid (1 < g_x < p - 1 is false)')
         if not (twoe1984 < g_x < p - twoe1984):
             self.stop()
@@ -127,6 +127,9 @@ class VoIPCallBase:
             pass
         del self.ctrl
         self.ctrl = None
+
+        for handler in self.call_ended_handlers:
+            callable(handler) and handler(self)
 
     def update_state(self, val: CallState) -> None:
         self.state = val
@@ -142,9 +145,6 @@ class VoIPCallBase:
         print('Call', self.call_id, 'failed with error', error)
         self.update_state(CallState.FAILED)
         self.stop()
-
-        for handler in self.call_ended_handlers:
-            callable(handler) and handler(self)
 
     def call_discarded(self):
         # TODO: call.need_debug
@@ -171,8 +171,9 @@ class VoIPCallBase:
                 connection_id=self.ctrl.get_preferred_relay_id(),
                 reason=reason
             ))
-        except (errors.CallAlreadyDeclined, errors.CallAlreadyAccepted):
-            pass
+        except errors.Error as e:
+            if e.ID not in ('CALL_ALREADY_DECLINED', 'CALL_ALREADY_ACCEPTED'):
+                raise e
         self.call_ended()
 
     def _initiate_encrypted_call(self) -> None:

@@ -37,7 +37,7 @@ class VoIPAlsaOutgoingCall(VoIPOutgoingCall):
 
 
 VoIPServerConfig.set_bitrate_config(80000, 100000, 60000, 5000, 5000)
-client = pyrogram.Client('black')
+client = pyrogram.Client('session')
 client.start()
 
 voip_service = VoIPService(client, receive_calls=False)

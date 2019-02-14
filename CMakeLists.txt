@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(pylibtgvoip)
 set(CMAKE_CXX_STANDARD 14)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 find_package(TGVoIP)
 

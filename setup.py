@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
 
+# PytgVoIP - Telegram VoIP Library for Python
+# Copyright (C) 2019 bakatrouble <https://github.com/bakatrouble>
+#
+# This file is part of PytgVoIP.
+#
+# PytgVoIP is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PytgVoIP is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with PytgVoIP.  If not, see <http://www.gnu.org/licenses/>.
+
+
 import multiprocessing
 import os
 import re
@@ -20,7 +39,10 @@ def check_libraries():
     out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
     match = re.findall(r'cannot find -l(\w+)', out)
     if match:
-        raise RuntimeError('Following libraries are not installed: {}'.format(', '.join(match)))
+        raise RuntimeError(
+            'Following libraries are not installed: {}\nFor guide on installing libtgvoip refer '
+            'https://github.com/bakatrouble/pytgvoip/blob/master/docs/libtgvoip.md'.format(', '.join(match))
+        )
 
 
 class CMakeExtension(Extension):
@@ -74,24 +96,69 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
-data_files = []
-if platform.system() == 'Windows':
-    data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
+def get_version():
+    with open('src/tgvoip/__init__.py', encoding='utf-8') as f:
+        version = re.findall(r"__version__ = '(.+)'", f.read())[0]
+        if os.environ.get('BUILD') is not None:
+            version += '.develop'
+
+
+def get_long_description():
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+        return f.read()
+
+
+def get_data_files():
+    data_files = []
+    if platform.system() == 'Windows':
+        data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
+    return data_files
+
 
 setup(
-    name='tgvoip',
-    version='0.0.1',
+    name='pytgvoip',
+    version=get_version(),
+    license='LGPLv3+',
     author='bakatrouble',
     author_email='bakatrouble@gmail.com',
-    description='libtgvoip bindings for python',
+    description='Telegram VoIP Library for Python',
+    long_description=get_long_description(),
+    long_description_content_type='text/markdown',
+    url='https://github.com/bakatrouble/pytgvoip',
+    keywords='telegram messenger voip library python',
+    project_urls={
+        'Tracker': 'https://github.com/bakatrouble/pytgvoip/issues',
+        'Community': 'https:/t.me/pytgvoip',
+        'Source': 'https://github.com/bakatrouble/pytgvoip',
+    },
     install_requires=['pyrogram'],
-    dependency_links=['https://github.com/pyrogram/pyrogram/tarball/develop#egg=pyrogram'],
-    long_description='',
+    python_required='~=3.4',
     ext_modules=[CMakeExtension('_tgvoip')],
     packages=['tgvoip'],
     package_dir={'tgvoip': os.path.join('src', 'tgvoip')},
     package_data={'': [os.path.join('src', '_tgvoip.pyi')]},
-    data_files=data_files,
+    data_files=get_data_files(),
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: C++',
+        'Topic :: Internet',
+        'Topic :: Communications',
+        'Topic :: Communications :: Internet Phone',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )

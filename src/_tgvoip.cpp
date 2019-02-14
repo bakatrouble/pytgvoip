@@ -199,7 +199,7 @@ bool VoIPController::need_rate() {
     return ctrl->NeedRate();
 }
 
-std::vector<tgvoip::AudioInputDevice> VoIPController::enumerate_audio_inputs() {
+/* std::vector<tgvoip::AudioInputDevice> VoIPController::enumerate_audio_inputs() {
     return tgvoip::VoIPController::EnumerateAudioInputs();
 }
 
@@ -221,7 +221,7 @@ std::string VoIPController::get_current_audio_input_id() {
 
 std::string VoIPController::get_current_audio_output_id() {
     return ctrl->GetCurrentAudioOutputID();
-}
+} */
 
 void VoIPController::handle_state_change(CallState state) {
     throw py::not_implemented_error();
