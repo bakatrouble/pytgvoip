@@ -11,6 +11,8 @@ platform: x64
 
 environment:
   BUILD: true
+  PYPI_PASSWORD:
+    secure: bBLT+ICiuwrkYZEBrL++Jw==
 
   matrix:
     - PYTHON: "C:\\Python34-x64"
@@ -78,9 +80,20 @@ after_build:
   - python setup.py bdist_wheel
   - ps: ls dist
 
-
-on_success:
-  - twine upload
+deploy_script:
+  - echo "Starting Artifact Deployment"
+  # populate pypirc file for twine
+  - echo [distutils]                                  > %USERPROFILE%\\.pypirc
+  - echo index-servers =                             >> %USERPROFILE%\\.pypirc
+  - echo     pypi                                    >> %USERPROFILE%\\.pypirc
+  - echo [pypi]                                      >> %USERPROFILE%\\.pypirc
+  - echo username=bakatrouble                        >> %USERPROFILE%\\.pypirc
+  - echo password=%PYPI_PASSWORD%                    >> %USERPROFILE%\\.pypirc
+  # upload to pypi for windows
+  - set PATH=%BK_PATH%
+  - set HOME=%USERPROFILE%
+  - ps: If ($env:APPVEYOR_REPO_TAG -eq "true" -And $env:APPVEYOR_REPO_BRANCH -eq "master") { Invoke-Expression "twine upload --skip-existing dist/*.whl" 2>$null } Else { write-output "Not on a tag on master, won't deploy to pypi"}
+  - echo "Finished Artifact Deployment"
 
 artifacts:
   - path: dist\*
