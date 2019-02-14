@@ -5,13 +5,11 @@ It might be available from official repositories, otherwise you must build it ma
 Requires `libopus` and `libssl` installed
 
 ### Windows
-Not working on Windows right now, help needed (following are just notes)
+[![Build status](https://ci.appveyor.com/api/projects/status/hiugc2951g7u98r3?svg=true)](https://ci.appveyor.com/project/bakatrouble/libtgvoip) https://github.com/bakatrouble/libtgvoip/tree/msvc_static
 
-First clone and build openssl and opus in Telegram/Libraries
-([guide](https://github.com/telegramdesktop/tdesktop/blob/dev/docs/building-msvc.md))
-and replace `libtgvoip.gyp` with [this file](https://gist.github.com/bakatrouble/377bcb11b90a472415b19af6217a2d7d)
+Build notes:
 
-Then add `__declspec(dllexport)` to following symbols:
+Add `__declspec(dllexport)` to following symbols:
 * VoIPServerConfig.h
    * class ServerConfig
 * VoIPController.h
@@ -56,17 +54,10 @@ $ git checkout fc13464b  # confirmed to work with this version, others would req
 $ export CFLAGS="-O3"
 $ export CXXFLAGS="-O3"
 $ autoreconf --force --install
-$ ./configure --without-pulse --without-alsa --enable-audio-callback --enable-static=no
+$ ./configure --enable-static=no
 $ make  # add "-jN" flag for multithreaded build, N=(cpu core count + 1) is recommended
 $ make install
 ```
-
-#### ARM
-Note: for ARM architecture (i.e. Raspberry Pi) you must patch sources before `autoconf`, otherwise it fails to build:
-```bash
-$ patch -d /tmp/libtgvoip
-```
-After execution of the command paste contents of `Makefile.am.arm.patch`, newline, Ctrl+D. 
 
 ### MacOS
 #### Dependencies
