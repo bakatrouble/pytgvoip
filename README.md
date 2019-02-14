@@ -1,4 +1,7 @@
 # pytgvoip
+ 
+[![](https://img.shields.io/pypi/v/pytgvoip.svg?style=flat)](https://pypi.org/project/pytgvoip/) [![](https://img.shields.io/appveyor/ci/bakatrouble/pylibtgvoip.svg?label=windows%20wheels%20build&style=flat)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip) [![](https://img.shields.io/appveyor/ci/bakatrouble/libtgvoip.svg?label=libtgvoip%20windows%20build&style=flat)](https://ci.appveyor.com/project/bakatrouble/libtgvoip) ![](https://img.shields.io/pypi/l/pytgvoip.svg?style=flat)
+ 
 **Telegram VoIP Library for Python**
 
 [Community](https://t.me/pytgvoip)
@@ -35,7 +38,7 @@ generation of Python extension written in C++.
 * Making and receiving Telegram calls
 * Python callbacks for sending and receiving audio stream frames allow flexible control (see `alsa.py` example which uses system audio devices)
 * Included classes that use files for audio playback/record
-* Pre-built Windows packages: [![Build status](https://ci.appveyor.com/api/projects/status/l0rwtrhhulrkb07x?svg=true)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip)
+* Pre-built Windows wheels in PyPI
 
 ## Requirements
 * Python 3.4 or higher
