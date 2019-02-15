@@ -31,11 +31,10 @@ from _tgvoip import (
     Stats,
     Endpoint,
     VoIPController as _VoIPController,
-    VoIPServerConfig as _VoIPServerConfig,
-    __version__
+    VoIPServerConfig as _VoIPServerConfig
 )
 
-from tgvoip._utils import get_real_elapsed_time
+from tgvoip.utils import get_real_elapsed_time
 
 
 class CallState(_CallState):
@@ -58,6 +57,7 @@ class VoIPController(_VoIPController):
         self.send_audio_frame_callback = None
         self.recv_audio_frame_callback = None
         self.call_state_changed_handlers = []
+        self.signal_bars_changed_handlers = []
         self._init()
 
     def _parse_endpoint(self, obj) -> Endpoint:
@@ -80,7 +80,7 @@ class VoIPController(_VoIPController):
 
     # native code callback
     def handle_state_change(self, state: CallState):
-        if state == CallState.ESTABLISHED and self.start_time:
+        if state == CallState.ESTABLISHED and not self.start_time:
             self.start_time = get_real_elapsed_time()
 
         for handler in self.call_state_changed_handlers:
@@ -88,8 +88,8 @@ class VoIPController(_VoIPController):
 
     # native code callback
     def handle_signal_bars_change(self, count: int):
-        pass
-        # TODO: listeners
+        for handler in self.signal_bars_changed_handlers:
+            callable(handler) and handler(count)
 
     @property
     def call_duration(self) -> float:
@@ -201,4 +201,4 @@ class VoIPServerConfig(_VoIPServerConfig):
 
 
 __all__ = ['NetType', 'DataSaving', 'CallState', 'CallError', 'Stats', 'Endpoint', 'VoIPController',
-           'VoIPServerConfig', '__version__']
+           'VoIPServerConfig']

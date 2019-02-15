@@ -129,7 +129,6 @@ setup(
         'Community': 'https:/t.me/pytgvoip',
         'Source': 'https://github.com/bakatrouble/pytgvoip',
     },
-    install_requires=['pyrogram'],
     python_required='~=3.4',
     ext_modules=[CMakeExtension('_tgvoip')],
     packages=['tgvoip'],

@@ -17,8 +17,8 @@
 # along with PytgVoIP.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
 import hashlib
+import time
 from typing import List
 
 twoe1984 = 2 ** 1984
@@ -378,20 +378,18 @@ def calc_fingerprint(key: bytes) -> int:
     )
 
 
-def generate_visualization(part1: bytes, part2: bytes) -> List[str]:
+def generate_visualization(key_fingerprint: bytes, part2: bytes) -> (List[str], List[str]):
     visualization = []
     visualization_text = []
-    vis_src = hashlib.sha256(part1 + part2).digest()
+    vis_src = hashlib.sha256(key_fingerprint + part2).digest()
     for i in range(0, len(vis_src), 8):
         number = vis_src[i:i+8]
         number = i2b(number[0] & 0x7f) + number[1:]
         idx = int.from_bytes(number, 'big') % len(emojis)
         visualization.append(emojis[idx][0])
         visualization_text.append(emojis[idx][1])
-    print(', '.join(visualization_text))
-    return visualization
+    return visualization, visualization_text
 
 
 def get_real_elapsed_time() -> float:
-    # TODO: this works only on linux
-    return os.times()[4]
+    return time.perf_counter()
