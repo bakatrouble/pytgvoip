@@ -72,15 +72,7 @@ PYBIND11_MODULE(_tgvoip, m) {
             .value("PROXY", CallError::ERROR_PROXY)
             .export_values();
 
-    py::class_<Stats>(m, "Stats", R"doc(
-                An object storing call stats
-
-                Attributes:
-                    bytes_sent_wifi (``int``): Amount of data sent over WiFi
-                    bytes_sent_mobile (``int``): Amount of data sent over mobile network
-                    bytes_recvd_wifi (``int``): Amount of data received over WiFi
-                    bytes_recvd_mobile (``int``): Amount of data received over mobile network
-    )doc")
+    py::class_<Stats>(m, "Stats")
             .def_readonly("bytes_sent_wifi", &Stats::bytes_sent_wifi)
             .def_readonly("bytes_sent_mobile", &Stats::bytes_sent_mobile)
             .def_readonly("bytes_recvd_wifi", &Stats::bytes_recvd_wifi)
@@ -95,16 +87,7 @@ PYBIND11_MODULE(_tgvoip, m) {
                 return repr.str();
             });
 
-    py::class_<Endpoint>(m, "Endpoint", R"doc(
-                An object storing endpoint info
-
-                Args:
-                    _id (``int``): Endpoint ID
-                    ip (``str``): Endpoint IPv4 address
-                    ipv6 (``str``): Endpoint IPv6 address
-                    port (``int``): Endpoint port
-                    peer_tag (``bytes``): Endpoint peer tag
-    )doc")
+    py::class_<Endpoint>(m, "Endpoint")
             .def(py::init<long, const std::string &, const std::string &, int, const std::string &>())
             .def_readwrite("_id", &Endpoint::id)
             .def_readwrite("ip", &Endpoint::ip)

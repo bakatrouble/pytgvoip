@@ -13,11 +13,12 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
 
-# Import after sys.path.insert() to avoid issues
-from tgvoip import __version__
+with open('../src/tgvoip/__init__.py', encoding='utf-8') as f:
+    __version__ = re.findall(r"__version__ = '(.+)'", f.read())[0]
 
 # -- Project information -----------------------------------------------------
 
@@ -26,7 +27,7 @@ copyright = '2019, bakatrouble'
 author = 'bakatrouble'
 
 # The short X.Y version
-version = 'version' + __version__
+version = 'version ' + __version__
 # The full version, including alpha/beta/rc tags
 release = __version__
 
@@ -77,6 +78,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 pygments_style = 'tango'
 
 autodoc_member_order = 'bysource'
+autodoc_mock_imports = ['_tgvoip']
 
 
 # -- Options for HTML output -------------------------------------------------
