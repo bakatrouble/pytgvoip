@@ -24,6 +24,9 @@
 #include <chrono>
 
 PYBIND11_MODULE(_tgvoip, m) {
+//    py::options options;
+//    options.disable_function_signatures();
+
     py::register_exception_translator([](std::exception_ptr p) {
         try {
             if (p) std::rethrow_exception(p);
@@ -44,28 +47,40 @@ PYBIND11_MODULE(_tgvoip, m) {
             .value("OTHER_HIGH_SPEED", NetType::NET_TYPE_OTHER_HIGH_SPEED)
             .value("OTHER_LOW_SPEED", NetType::NET_TYPE_OTHER_LOW_SPEED)
             .value("DIALUP", NetType::NET_TYPE_DIALUP)
-            .value("OTHER_MOBILE", NetType::NET_TYPE_OTHER_MOBILE);
+            .value("OTHER_MOBILE", NetType::NET_TYPE_OTHER_MOBILE)
+            .export_values();
 
     py::enum_<CallState>(m, "CallState")
             .value("WAIT_INIT", CallState::STATE_WAIT_INIT)
             .value("WAIT_INIT_ACK", CallState::STATE_WAIT_INIT_ACK)
             .value("ESTABLISHED", CallState::STATE_ESTABLISHED)
             .value("FAILED", CallState::STATE_FAILED)
-            .value("RECONNECTING", CallState::STATE_RECONNECTING);
+            .value("RECONNECTING", CallState::STATE_RECONNECTING)
+            .export_values();
 
     py::enum_<DataSaving>(m, "DataSaving")
             .value("NEVER", DataSaving::DATA_SAVING_NEVER)
             .value("MOBILE", DataSaving::DATA_SAVING_MOBILE)
-            .value("ALWAYS", DataSaving::DATA_SAVING_ALWAYS);
+            .value("ALWAYS", DataSaving::DATA_SAVING_ALWAYS)
+            .export_values();
 
     py::enum_<CallError>(m, "CallError")
             .value("UNKNOWN", CallError::ERROR_UNKNOWN)
             .value("INCOMPATIBLE", CallError::ERROR_INCOMPATIBLE)
             .value("TIMEOUT", CallError::ERROR_TIMEOUT)
             .value("AUDIO_IO", CallError::ERROR_AUDIO_IO)
-            .value("PROXY", CallError::ERROR_PROXY);
+            .value("PROXY", CallError::ERROR_PROXY)
+            .export_values();
 
-    py::class_<Stats>(m, "Stats")
+    py::class_<Stats>(m, "Stats", R"doc(
+                An object storing call stats
+
+                Attributes:
+                    bytes_sent_wifi (``int``): Amount of data sent over WiFi
+                    bytes_sent_mobile (``int``): Amount of data sent over mobile network
+                    bytes_recvd_wifi (``int``): Amount of data received over WiFi
+                    bytes_recvd_mobile (``int``): Amount of data received over mobile network
+    )doc")
             .def_readonly("bytes_sent_wifi", &Stats::bytes_sent_wifi)
             .def_readonly("bytes_sent_mobile", &Stats::bytes_sent_mobile)
             .def_readonly("bytes_recvd_wifi", &Stats::bytes_recvd_wifi)
@@ -80,7 +95,16 @@ PYBIND11_MODULE(_tgvoip, m) {
                 return repr.str();
             });
 
-    py::class_<Endpoint>(m, "Endpoint")
+    py::class_<Endpoint>(m, "Endpoint", R"doc(
+                An object storing endpoint info
+
+                Args:
+                    _id (``int``): Endpoint ID
+                    ip (``str``): Endpoint IPv4 address
+                    ipv6 (``str``): Endpoint IPv6 address
+                    port (``int``): Endpoint port
+                    peer_tag (``bytes``): Endpoint peer tag
+    )doc")
             .def(py::init<long, const std::string &, const std::string &, int, const std::string &>())
             .def_readwrite("_id", &Endpoint::id)
             .def_readwrite("ip", &Endpoint::ip)
@@ -124,13 +148,13 @@ PYBIND11_MODULE(_tgvoip, m) {
             .def(py::init<>())
             .def(py::init<const std::string &>())
             .def("_init", &VoIPController::init)
-            .def("start", &VoIPController::start)
-            .def("connect", &VoIPController::connect)
+            .def("start", &VoIPController::start, "Start VoIP controller")
+            .def("connect", &VoIPController::connect, "Start call")
             .def("set_proxy", &VoIPController::set_proxy)
             .def("set_encryption_key", &VoIPController::set_encryption_key)
             .def("set_remote_endpoints", &VoIPController::set_remote_endpoints)
-            .def("get_debug_string", &VoIPController::get_debug_string)
-            .def("set_network_type", &VoIPController::set_network_type)
+            .def("get_debug_string", &VoIPController::get_debug_string, "Get debug string")
+            .def("set_network_type", &VoIPController::set_network_type, "Set network type")
             .def("set_mic_mute", &VoIPController::set_mic_mute)
             .def("set_config", &VoIPController::set_config)
             .def("debug_ctl", &VoIPController::debug_ctl)
@@ -142,14 +166,19 @@ PYBIND11_MODULE(_tgvoip, m) {
             .def("set_echo_cancellation_strength", &VoIPController::set_echo_cancellation_strength)
             .def("get_peer_capabilities", &VoIPController::get_peer_capabilities)
             .def("need_rate", &VoIPController::need_rate)
+
             /* .def("enumerate_audio_inputs", &VoIPController::enumerate_audio_inputs)
             .def("enumerate_audio_outputs", &VoIPController::enumerate_audio_outputs)
             .def("set_current_audio_input", &VoIPController::set_current_audio_input)
             .def("set_current_audio_output", &VoIPController::set_current_audio_output)
             .def("get_current_audio_input_id", &VoIPController::get_current_audio_input_id)
             .def("get_current_audio_output_id", &VoIPController::get_current_audio_output_id) */
-            .def("handle_state_change", &VoIPController::handle_state_change)
-            .def("handle_signal_bars_change", &VoIPController::handle_signal_bars_change)
+
+            /* .def("_handle_state_change", &VoIPController::_handle_state_change)
+            .def("_handle_signal_bars_change", &VoIPController::_handle_signal_bars_change)
+            .def("_send_audio_frame_impl", &VoIPController::_send_audio_frame_impl)
+            .def("_recv_audio_frame_impl", &VoIPController::_recv_audio_frame_impl) */
+
             .def_readonly("persistent_state_file", &VoIPController::persistent_state_file)
             .def_property_readonly_static("LIBTGVOIP_VERSION", &VoIPController::get_version)
             .def_property_readonly_static("CONNECTION_MAX_LAYER", &VoIPController::connection_max_layer);

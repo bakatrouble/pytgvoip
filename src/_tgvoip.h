@@ -127,12 +127,12 @@ public:
     std::string get_current_audio_output_id(); */
 
     // callbacks
-    virtual void handle_state_change(CallState state);
-    virtual void handle_signal_bars_change(int count);
+    virtual void _handle_state_change(CallState state);
+    virtual void _handle_signal_bars_change(int count);
     void send_audio_frame(int16_t *buf, size_t size);
     void recv_audio_frame(int16_t *buf, size_t size);
-    virtual char *send_audio_frame_impl(long len);
-    virtual void recv_audio_frame_impl(py::bytes frame);
+    virtual char *_send_audio_frame_impl(long len);
+    virtual void _recv_audio_frame_impl(py::bytes frame);
 
     static std::string get_version(py::object /* cls */);
     static int connection_max_layer(py::object /* cls */);
@@ -148,17 +148,17 @@ private:
 class PyVoIPController : public VoIPController {
     using VoIPController::VoIPController;
 
-    void handle_state_change(CallState state) override {
-        PYBIND11_OVERLOAD(void, VoIPController, handle_state_change, state);
+    void _handle_state_change(CallState state) override {
+        PYBIND11_OVERLOAD(void, VoIPController, _handle_state_change, state);
     };
-    void handle_signal_bars_change(int count) override {
-        PYBIND11_OVERLOAD(void, VoIPController, handle_signal_bars_change, count);
+    void _handle_signal_bars_change(int count) override {
+        PYBIND11_OVERLOAD(void, VoIPController, _handle_signal_bars_change, count);
     };
-    char *send_audio_frame_impl(long len) override {
-        PYBIND11_OVERLOAD(char *, VoIPController, send_audio_frame_impl, len);
+    char *_send_audio_frame_impl(long len) override {
+        PYBIND11_OVERLOAD(char *, VoIPController, _send_audio_frame_impl, len);
     };
-    void recv_audio_frame_impl(py::bytes frame) override {
-        PYBIND11_OVERLOAD(void, VoIPController, recv_audio_frame_impl, frame);
+    void _recv_audio_frame_impl(py::bytes frame) override {
+        PYBIND11_OVERLOAD(void, VoIPController, _recv_audio_frame_impl, frame);
     };
 };
 

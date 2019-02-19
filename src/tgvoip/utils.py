@@ -19,9 +19,14 @@
 
 import hashlib
 import time
-from typing import List
+from typing import List, Union
 
-twoe1984 = 2 ** 1984
+"""
+.. module:: utils
+    :synopsis: Utility functions for pytgvoip
+"""
+
+twoe1984 = 1 << 1984  # 2^1984 https://core.telegram.org/api/end-to-end#sending-a-request
 emojis = (
     ('\U0001f609', 'WINKING_FACE'),
     ('\U0001f60d', 'SMILING_FACE_WITH_HEART_EYES'),
@@ -357,9 +362,30 @@ emojis = (
     ('\U0001f536', 'LARGE_ORANGE_DIAMOND'),
     ('\U0001f537', 'LARGE_BLUE_DIAMOND'),
 )
+common_prime = b'\xC7\x1C\xAE\xB9\xC6\xB1\xC9\x04\x8E\x6C\x52\x2F\x70\xF1\x3F\x73\x98\x0D\x40\x23\x8E\x3E\x21\xC1\x49' \
+               b'\x34\xD0\x37\x56\x3D\x93\x0F\x48\x19\x8A\x0A\xA7\xC1\x40\x58\x22\x94\x93\xD2\x25\x30\xF4\xDB\xFA\x33' \
+               b'\x6F\x6E\x0A\xC9\x25\x13\x95\x43\xAE\xD4\x4C\xCE\x7C\x37\x20\xFD\x51\xF6\x94\x58\x70\x5A\xC6\x8C\xD4' \
+               b'\xFE\x6B\x6B\x13\xAB\xDC\x97\x46\x51\x29\x69\x32\x84\x54\xF1\x8F\xAF\x8C\x59\x5F\x64\x24\x77\xFE\x96' \
+               b'\xBB\x2A\x94\x1D\x5B\xCD\x1D\x4A\xC8\xCC\x49\x88\x07\x08\xFA\x9B\x37\x8E\x3C\x4F\x3A\x90\x60\xBE\xE6' \
+               b'\x7C\xF9\xA4\xA4\xA6\x95\x81\x10\x51\x90\x7E\x16\x27\x53\xB5\x6B\x0F\x6B\x41\x0D\xBA\x74\xD8\xA8\x4B' \
+               b'\x2A\x14\xB3\x14\x4E\x0E\xF1\x28\x47\x54\xFD\x17\xED\x95\x0D\x59\x65\xB4\xB9\xDD\x46\x58\x2D\xB1\x17' \
+               b'\x8D\x16\x9C\x6B\xC4\x65\xB0\xD6\xFF\x9C\xA3\x92\x8F\xEF\x5B\x9A\xE4\xE4\x18\xFC\x15\xE8\x3E\xBE\xA0' \
+               b'\xF8\x7F\xA9\xFF\x5E\xED\x70\x05\x0D\xED\x28\x49\xF4\x7B\xF9\x59\xD9\x56\x85\x0C\xE9\x29\x85\x1F\x0D' \
+               b'\x81\x15\xF6\x35\xB1\x05\xEE\x2E\x4E\x15\xD0\x4B\x24\x54\xBF\x6F\x4F\xAD\xF0\x34\xB1\x04\x03\x11\x9C' \
+               b'\xD8\xE3\xB9\x2F\xCC\x5B'
 
 
 def i2b(value: int) -> bytes:
+    """
+    Convert integer value to bytes
+
+    Args:
+        value (``int``):
+            Value to convert
+
+    Returns:
+        Resulting ``bytes`` object
+    """
     return int.to_bytes(
         value,
         length=(value.bit_length() + 8 - 1) // 8,  # 8 bits per byte,
@@ -369,19 +395,108 @@ def i2b(value: int) -> bytes:
 
 
 def b2i(value: bytes) -> int:
+    """
+    Convert bytes value to integer
+
+    Args:
+        value (``bytes``):
+            Value to convert
+
+    Returns:
+        Resulting ``int`` object
+    """
     return int.from_bytes(value, 'big')
 
 
+def check_dhc(g: int, p: int) -> None:
+    """
+    Security checks for Diffie-Hellman prime and generator. Ported from Java implementation for Android
+
+    Args:
+        g (``int``): DH generator
+        p (``int``): DH prime
+
+    Raises:
+        :class:`ValueError` if checks are not passed
+    """
+    if not 2 <= g <= 7:
+        raise ValueError()
+
+    if p.bit_length() != 2048 or p < 0:
+        raise ValueError()
+
+    if (
+            g == 2 and p % 8 != 7 or  # p % 8 = 7 for g = 2
+            g == 3 and p % 3 != 2 or  # p % 3 = 2 for g = 3
+            g == 5 and p % 5 not in (1, 4) or  # p % 5 = 1 or 4 for g = 5
+            g == 6 and p % 24 not in (19, 23) or  # p % 24 = 19 or 23 for g = 6
+            g == 7 and p % 7 not in (3, 5, 6)  # p % 7 = 3, 5 or 6 for g = 7
+    ):
+        raise ValueError()
+
+    if i2b(p) == common_prime:
+        return
+
+    # let's assume that (p - 1) / 2 is prime because checking its primality is an expensive operation...
+
+
+def check_g(g_x: int, p: int) -> None:
+    """
+    Check g\_ numbers
+
+    Args:
+        g_x: g\_ number to check
+        p: DH prime
+
+    Raises:
+        :class:`ValueError` if checks are not passed
+    """
+    if not (1 < g_x < p - 1):
+        raise ValueError('g_x is invalid (1 < g_x < p - 1 is false)')
+    if not (twoe1984 < g_x < p - twoe1984):
+        raise ValueError('g_x is invalid (2^1984 < g_x < p - 2^1984 is false)')
+
+
 def calc_fingerprint(key: bytes) -> int:
+    """
+    Calculate key fingerprint
+
+    Args:
+        key (``bytes``):
+            Key to generate fingerprint for
+
+    Returns:
+        :class:`int` object representing a key fingerprint
+    """
     return int.from_bytes(
         bytes(hashlib.sha1(key).digest()[-8:]), 'little', signed=True
     )
 
 
-def generate_visualization(key_fingerprint: bytes, part2: bytes) -> (List[str], List[str]):
+def generate_visualization(key: Union[bytes, int], part2: Union[bytes, int]) -> (List[str], List[str]):
+    """
+    Generate emoji visualization of key
+
+    https://core.telegram.org/api/end-to-end/voice-calls#key-verification
+
+    Args:
+        key (``bytes`` | ``int``):
+            Call auth key
+
+        part2 (``bytes`` | ``int``):
+            `g_a` value of the caller
+
+    Returns:
+        A tuple containing two lists (of emoji strings and of their text representations)
+    """
+    if isinstance(key, int):
+        key = i2b(key)
+    if isinstance(part2, int):
+        part2 = i2b(part2)
+
     visualization = []
     visualization_text = []
-    vis_src = hashlib.sha256(key_fingerprint + part2).digest()
+    vis_src = hashlib.sha256(key + part2).digest()
     for i in range(0, len(vis_src), 8):
         number = vis_src[i:i+8]
         number = i2b(number[0] & 0x7f) + number[1:]
@@ -392,4 +507,10 @@ def generate_visualization(key_fingerprint: bytes, part2: bytes) -> (List[str], 
 
 
 def get_real_elapsed_time() -> float:
+    """
+    Get current performance counter value
+
+    Returns:
+        Time to use for measuring call duration
+    """
     return time.perf_counter()

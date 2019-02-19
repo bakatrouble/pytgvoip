@@ -38,10 +38,10 @@ void VoIPController::init() {
     ctrl->implData = (void *)this;
     tgvoip::VoIPController::Callbacks callbacks {};
     callbacks.connectionStateChanged = [](tgvoip::VoIPController *ctrl, int state) {
-        ((VoIPController *)ctrl->implData)->handle_state_change(CallState(state));
+        ((VoIPController *)ctrl->implData)->_handle_state_change(CallState(state));
     };
     callbacks.signalBarCountChanged = [](tgvoip::VoIPController *ctrl, int count) {
-        ((VoIPController *)ctrl->implData)->handle_signal_bars_change(count);
+        ((VoIPController *)ctrl->implData)->_handle_signal_bars_change(count);
     };
     callbacks.groupCallKeyReceived = nullptr;
     callbacks.groupCallKeySent = nullptr;
@@ -223,38 +223,38 @@ std::string VoIPController::get_current_audio_output_id() {
     return ctrl->GetCurrentAudioOutputID();
 } */
 
-void VoIPController::handle_state_change(CallState state) {
+void VoIPController::_handle_state_change(CallState state) {
     throw py::not_implemented_error();
 }
 
-void VoIPController::handle_signal_bars_change(int count) {
+void VoIPController::_handle_signal_bars_change(int count) {
     throw py::not_implemented_error();
 }
 
 void VoIPController::send_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(input_mutex);
     // auto start = std::chrono::high_resolution_clock::now();
-    char *frame = this->send_audio_frame_impl(sizeof(int16_t) * size);
+    char *frame = this->_send_audio_frame_impl(sizeof(int16_t) * size);
     if (frame != nullptr)
         memcpy(buf, frame, sizeof(int16_t) * size);
     // auto finish = std::chrono::high_resolution_clock::now();
     // std::cout << "send: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
-char *VoIPController::send_audio_frame_impl(long len) { return (char *)""; }
+char *VoIPController::_send_audio_frame_impl(long len) { return (char *)""; }
 
 void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(output_mutex);
     // auto start = std::chrono::high_resolution_clock::now();
     if (buf != nullptr) {
         std::string frame((const char *) buf, sizeof(int16_t) * size);
-        this->recv_audio_frame_impl(frame);
+        this->_recv_audio_frame_impl(frame);
     }
     // auto finish = std::chrono::high_resolution_clock::now();
     // std::cout << "recv: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
-void VoIPController::recv_audio_frame_impl(py::bytes frame) {}
+void VoIPController::_recv_audio_frame_impl(py::bytes frame) {}
 
 std::string VoIPController::get_version(py::object /* cls */) {
     return tgvoip::VoIPController::GetVersion();
@@ -263,7 +263,6 @@ std::string VoIPController::get_version(py::object /* cls */) {
 int VoIPController::connection_max_layer(py::object /* cls */) {
     return tgvoip::VoIPController::GetConnectionMaxLayer();
 }
-
 
 void VoIPServerConfig::set_config(std::string &json_str) {
     tgvoip::ServerConfig::GetSharedInstance()->Update(json_str);
