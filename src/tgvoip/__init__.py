@@ -20,4 +20,4 @@
 from tgvoip.tgvoip import *
 from tgvoip.tgvoip import __all__
 
-__version__ = '0.0.2'
+__version__ = '0.0.2.1'
