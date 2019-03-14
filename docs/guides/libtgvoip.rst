@@ -36,11 +36,11 @@ Build and install
     $ cd /tmp
     $ git clone https://github.com/grishka/libtgvoip/
     $ cd libtgvoip
-    $ git checkout fc13464b  # confirmed to work with this version, others would require testing
+    $ git checkout b6ac2911  # confirmed to work with this version, others would require testing
 
     $ export CFLAGS="-O3"
     $ export CXXFLAGS="-O3"
     $ autoreconf --force --install
-    $ ./configure --enable-static=no
+    $ ./configure --enable-audio-callback --enable-static=no
     $ make  # add "-jN" flag for multithreaded build, N=(cpu core count + 1) is recommended
     $ make install
