@@ -19,15 +19,16 @@
 # along with PytgVoIP.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import multiprocessing
 import os
 import re
 import sys
 import platform
 import subprocess
 
-import setuptools
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from distutils.version import LooseVersion
 
 
 def check_libraries():
@@ -36,96 +37,64 @@ def check_libraries():
     match = re.findall(r'cannot find -l(\w+)', out)
     if match:
         raise RuntimeError(
-            'libtgvoip was not found.\nFor guide on compiling it please refer to '
-            'https://pytgvoip.readthedocs.io/en/latest/guides/libtgvoip.html'
+            'Following libraries are not installed: {}\nFor guide on installing libtgvoip refer '
+            'https://github.com/bakatrouble/pytgvoip/blob/master/docs/libtgvoip.md'.format(', '.join(match))
         )
 
 
-class get_pybind_include(object):
-    """Helper class to determine the pybind11 include path
-    The purpose of this class is to postpone importing pybind11
-    until it is actually installed, so that the ``get_include()``
-    method can be invoked. """
-
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
+class CMakeExtension(Extension):
+    def __init__(self, name, sourcedir=''):
+        Extension.__init__(self, name, sources=[])
+        self.sourcedir = os.path.abspath(sourcedir)
 
 
-ext_modules = [
-    Extension(
-        '_tgvoip',
-        [
-            'src/_tgvoip.cpp',
-            'src/_tgvoip_module.cpp',
-        ],
-        include_dirs=[
-            # Path to pybind11 headers
-            get_pybind_include(),
-            get_pybind_include(user=True)
-        ],
-        language='c++'
-    ),
-]
-
-
-def has_flag(compiler, flagname):
-    """Return a boolean indicating whether a flag name is supported on
-    the specified compiler.
-    """
-    import tempfile
-    with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
-        f.write('int main (int argc, char **argv) { return 0; }')
+class CMakeBuild(build_ext):
+    def run(self):
         try:
-            compiler.compile([f.name], extra_postargs=[flagname])
-        except setuptools.distutils.errors.CompileError:
-            return False
-    return True
+            out = subprocess.check_output(['cmake', '--version'])
+        except OSError:
+            raise RuntimeError("CMake must be installed to build the following extensions: " +
+                               ", ".join(e.name for e in self.extensions))
 
+        if platform.system() == "Windows":
+            cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
+            if cmake_version < '3.1.0':
+                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
-def cpp_flag(compiler):
-    """Return the -std=c++[11/14] compiler flag.
-    The c++14 is prefered over c++11 (when it is available).
-    """
-    if has_flag(compiler, '-std=c++14'):
-        return '-std=c++14'
-    elif has_flag(compiler, '-std=c++11'):
-        return '-std=c++11'
-    else:
-        raise RuntimeError('Unsupported compiler -- at least C++11 support is needed!')
-
-
-class BuildExt(build_ext):
-    c_opts = {
-        'msvc': ['/EHsc'],
-        'unix': [],
-    }
-
-    if sys.platform == 'darwin':
-        c_opts['unix'] += ['-stdlib=libc++', '-mmacosx-version-min=10.7']
-
-    def build_extensions(self):
-        ct = self.compiler.compiler_type
-        opts = self.c_opts.get(ct, [])
-        if ct == 'unix':
+        if platform.system() != 'Windows':
             check_libraries()
-            opts.append('-DVERSION_INFO="{}"'.format(get_version()))
-            opts.append(cpp_flag(self.compiler))
-            if has_flag(self.compiler, '-fvisibility=hidden'):
-                opts.append('-fvisibility=hidden')
-        elif ct == 'msvc':
-            opts.append(r'/DVERSION_INFO=\"{}\"'.format(get_version()))
+
         for ext in self.extensions:
-            ext.extra_compile_args = opts
-        build_ext.build_extensions(self)
+            self.build_extension(ext)
+
+    def build_extension(self, ext):
+        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+
+        cfg = 'Release'
+        build_args = ['--config', cfg]
+
+        if platform.system() == "Windows":
+            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
+            if sys.maxsize > 2**32:
+                cmake_args += ['-A', 'x64']
+            build_args += ['--', '/m:{}'.format(multiprocessing.cpu_count() + 1)]
+        else:
+            cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
+            build_args += ['--', '-j{}'.format(multiprocessing.cpu_count() + 1)]
+
+        env = os.environ.copy()
+        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
+                                                              self.distribution.get_version())
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
 def get_version():
-    init_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'src', 'tgvoip', '__init__.py')
-    with open(init_path, encoding='utf-8') as f:
+    with open('src/tgvoip/__init__.py', encoding='utf-8') as f:
         version = re.findall(r"__version__ = '(.+)'", f.read())[0]
         if os.environ.get('BUILD') is None:
             version += '.develop'
@@ -161,12 +130,12 @@ setup(
         'Source': 'https://github.com/bakatrouble/pytgvoip',
     },
     python_required='~=3.4',
-    ext_modules=ext_modules,
+    ext_modules=[CMakeExtension('_tgvoip')],
     packages=['tgvoip'],
     package_dir={'tgvoip': os.path.join('src', 'tgvoip')},
     package_data={'': [os.path.join('src', '_tgvoip.pyi')]},
     data_files=get_data_files(),
-    cmdclass={'build_ext': BuildExt},
+    cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',
