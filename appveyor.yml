@@ -15,6 +15,16 @@ environment:
     secure: bBLT+ICiuwrkYZEBrL++Jw==
 
   matrix:
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
@@ -48,14 +58,14 @@ environment:
 clone_folder: c:\projects\pytgvoip
 
 install:
-  - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
   - appveyor DownloadFile "https://ci.appveyor.com/api/projects/bakatrouble/libtgvoip/artifacts/out/Release/libtgvoip.dll.zip?job=%LIBTGVOIP_JOB%"
   - 7z x libtgvoip.dll.zip
-  - mkdir 3rdparty
+  - git submodule update --init --recursive
   - git clone https://github.com/bakatrouble/libtgvoip/ 3rdparty/libtgvoip
   - cd 3rdparty/libtgvoip
   - git checkout msvc_static
