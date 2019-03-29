@@ -23,22 +23,10 @@ import os
 import re
 import sys
 import platform
-import subprocess
 
 import setuptools
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-
-
-def check_libraries():
-    args = 'gcc -ltgvoip'.split()
-    out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
-    match = re.findall(r'cannot find -l(\w+)', out)
-    if match:
-        raise RuntimeError(
-            'libtgvoip was not found.\nFor guide on compiling it please refer to '
-            'https://pytgvoip.readthedocs.io/en/latest/guides/libtgvoip.html'
-        )
 
 
 class get_pybind_include(object):
@@ -55,17 +43,47 @@ class get_pybind_include(object):
         return pybind11.get_include(self.user)
 
 
+def find_libtgvoip_headers():
+    search = [
+        '/Library/Frameworks/include/tgvoip',
+        '/usr/local/include/tgvoip',
+        '/usr/include/tgvoip',
+        '/sw/include/tgvoip',
+        '/opt/local/include/tgvoip',
+        '/opt/csw/include/tgvoip',
+        '/opt/include/tgvoip',
+        os.environ.get('TGVOIP_INCLUDE_ROOT', ''),
+    ]
+    for path in search:
+        if os.path.exists(path) and os.path.exists(os.path.join(path, 'VoIPController.h')):
+            return path
+    raise RuntimeError('libtgvoip headers are not found\nRefer to '
+                       'https://pytgvoip.readthedocs.io/en/latest/guides/libtgvoip.html '
+                       'for guide on building libtgvoip')
+
+
 ext_modules = [
     Extension(
         '_tgvoip',
         [
-            'src/_tgvoip.cpp',
             'src/_tgvoip_module.cpp',
+            'src/_tgvoip.cpp',
+        ],
+        libraries=['tgvoip'],
+        library_dirs=[
+            os.environ.get('TGVOIP_LIBRARY_ROOT', ''),
         ],
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
-            get_pybind_include(user=True)
+            get_pybind_include(user=True),
+            find_libtgvoip_headers(),
+        ],
+        define_macros=[
+            ('TGVOIP_USE_CALLBACK_AUDIO_IO', '1'),
+            ('WEBRTC_APM_DEBUG_DUMP', '0'),
+            ('WEBRTC_NS_FLOAT', '1'),
+            ('TGVOIP_USE_DESKTOP_DSP', '1'),
         ],
         language='c++'
     ),
@@ -111,7 +129,6 @@ class BuildExt(build_ext):
         ct = self.compiler.compiler_type
         opts = self.c_opts.get(ct, [])
         if ct == 'unix':
-            check_libraries()
             opts.append('-DVERSION_INFO="{}"'.format(get_version()))
             opts.append(cpp_flag(self.compiler))
             if has_flag(self.compiler, '-fvisibility=hidden'):
