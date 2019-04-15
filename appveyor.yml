@@ -58,7 +58,7 @@ environment:
 clone_folder: c:\projects\pytgvoip
 
 install:
-  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+  - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"

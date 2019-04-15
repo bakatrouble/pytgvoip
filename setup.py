@@ -94,7 +94,8 @@ class CMakeBuild(build_ext):
 
 
 def get_version():
-    with open('src/tgvoip/__init__.py', encoding='utf-8') as f:
+    init_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'src', 'tgvoip', '__init__.py')
+    with open(init_path, encoding='utf-8') as f:
         version = re.findall(r"__version__ = '(.+)'", f.read())[0]
         if os.environ.get('BUILD') is None:
             version += '.develop'

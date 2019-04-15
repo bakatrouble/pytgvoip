@@ -78,4 +78,3 @@ cmake-build-*
 *.wav
 unknown_errors.txt
 example/config.ini
-notes.txt
