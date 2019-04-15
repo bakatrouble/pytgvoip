@@ -33,13 +33,14 @@ from distutils.version import LooseVersion
 
 def check_libraries():
     args = 'gcc -ltgvoip'.split()
-    out = subprocess.run(args, stderr=subprocess.PIPE).stderr.decode()
-    match = re.findall(r'cannot find -l(\w+)', out)
-    if match:
-        raise RuntimeError(
-            'Following libraries are not installed: {}\nFor guide on installing libtgvoip refer '
-            'https://github.com/bakatrouble/pytgvoip/blob/master/docs/libtgvoip.md'.format(', '.join(match))
-        )
+    with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        stdout, stderr = process.communicate()
+        match = re.findall(r'cannot find -l(\w+)', stderr.decode())
+        if match:
+            raise RuntimeError(
+                'Following libraries are not installed: {}\nFor guide on installing libtgvoip refer '
+                'https://github.com/bakatrouble/pytgvoip/blob/master/docs/libtgvoip.md'.format(', '.join(match))
+            )
 
 
 class CMakeExtension(Extension):
