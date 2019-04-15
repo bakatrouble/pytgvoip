@@ -24,4 +24,4 @@ deploy:
   script: twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD dist/*.whl
   on:
     branch: master
-#    tags: true
+    tags: true
