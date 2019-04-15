@@ -21,7 +21,7 @@ script:
 
 deploy:
   provider: script
-  script: twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD ${TRAVIS_BUILD_DIR}/dist/*.whl
+  script: ls && twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD ${TRAVIS_BUILD_DIR}/dist/*.whl
   on:
     branch: master
 #    tags: true

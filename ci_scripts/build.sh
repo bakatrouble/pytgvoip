@@ -11,7 +11,7 @@ fi
 cd /tmp
 git clone https://github.com/bakatrouble/pytgvoip --recursive
 cd pytgvoip
-/opt/python/$1/bin/python setup.py bdist_wheel
+BUILD=1 /opt/python/$1/bin/python setup.py bdist_wheel
 /opt/python/$1/bin/auditwheel repair --plat manylinux2010_x86_64 dist/*.whl
 cp wheelhouse/*.whl /dist/
 cd ..
