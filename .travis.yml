@@ -17,11 +17,11 @@ install:
   - mkdir dist
 
 script:
-  - docker run -v dist:/dist bakatrouble/pytgvoip-builder $PYTHON
+  - docker run -v ${TRAVIS_BUILD_DIR}/dist:/dist/ bakatrouble/pytgvoip-builder ${PYTHON}
 
 deploy:
   provider: script
-  script: twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD dist/*.whl
+  script: twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD ${TRAVIS_BUILD_DIR}/dist/*.whl
   on:
     branch: master
-    tags: true
+#    tags: true
