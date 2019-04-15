@@ -15,15 +15,15 @@ env:
 install:
   - echo $PWD
   - pip install pip twine -U
-  - mkdir dist
 
 script:
   - echo $PWD
-  - docker run -v dist:/dist/ bakatrouble/pytgvoip-builder ${PYTHON}
+  - docker run -v `pwd`:/dist/ bakatrouble/pytgvoip-builder ${PYTHON}
+  - ls
 
 deploy:
   provider: script
-  script: echo $PWD && twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD ${TRAVIS_BUILD_DIR}/dist/*.whl
+  script: ls && echo $PWD && twine upload --skip-existing --username bakatrouble --password $PYPI_PASSWORD *.whl
   on:
     branch: master
 #    tags: true
