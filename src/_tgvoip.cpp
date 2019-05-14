@@ -23,7 +23,7 @@
 #include <iostream>
 // #include <chrono>
 
-Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const py::bytes &peer_tag)
+Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag)
     : id(id), ip(ip), ipv6(ipv6), port(port), peer_tag(peer_tag) {}
 
 VoIPController::VoIPController() {}

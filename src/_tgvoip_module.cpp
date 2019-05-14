@@ -88,7 +88,7 @@ PYBIND11_MODULE(_tgvoip, m) {
             });
 
     py::class_<Endpoint>(m, "Endpoint")
-            .def(py::init<long, const std::string &, const std::string &, int, const std::string &>())
+            .def(py::init<long, const std::string &, const std::string &, int, const py::bytes &>())
             .def_readwrite("_id", &Endpoint::id)
             .def_readwrite("ip", &Endpoint::ip)
             .def_readwrite("ipv6", &Endpoint::ipv6)

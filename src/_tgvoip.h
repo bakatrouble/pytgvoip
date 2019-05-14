@@ -79,7 +79,7 @@ struct Stats {
 };
 
 struct Endpoint {
-    Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const py::bytes &peer_tag);
+    Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag);
     int64_t id;
     std::string ip;
     std::string ipv6;
