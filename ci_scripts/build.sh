@@ -13,6 +13,7 @@ git clone https://github.com/bakatrouble/pytgvoip --recursive
 cd pytgvoip
 BUILD=1 /opt/python/$1/bin/python setup.py bdist_wheel
 /opt/python/$1/bin/auditwheel repair --plat manylinux2010_x86_64 dist/*.whl
+cp dist/*.whl /dist/
 cp wheelhouse/*.whl /dist/
 cd ..
 rm -rf pytgvoip
