@@ -15,23 +15,13 @@ environment:
     secure: bBLT+ICiuwrkYZEBrL++Jw==
 
   matrix:
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4.x"
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "32"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
 
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "64"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
-
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "32"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
-
-    - PYTHON: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5.x"
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
@@ -45,15 +35,27 @@ environment:
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
-    - PYTHON: "C:\\Python37"
-      PYTHON_VERSION: "3.7.x"
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
 
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
+
 
 clone_folder: c:\projects\pytgvoip
 
