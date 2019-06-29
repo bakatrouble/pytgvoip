@@ -99,7 +99,7 @@ def get_version():
     with open(init_path, encoding='utf-8') as f:
         version = re.findall(r"__version__ = '(.+)'", f.read())[0]
         if os.environ.get('BUILD') is None:
-            version += '.develop'
+            version += '+develop'
         return version
 
 
