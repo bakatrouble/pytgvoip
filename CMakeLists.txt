@@ -38,7 +38,11 @@ add_definitions(
 add_subdirectory(3rdparty/pybind11)
 include_directories(${TGVOIP_INCLUDE_DIR})
 
-set(DESKTOP_APP_USE_PACKAGED TRUE)
+if(WIN32)
+    get_filename_component(lobs_loc .. REALPATH)
+else()
+    set(DESKTOP_APP_USE_PACKAGED TRUE)
+endif()
 include(cmake/nice_target_sources.cmake)
 include(cmake/target_link_frameworks.cmake)
 include(cmake/target_link_static_libraries.cmake)

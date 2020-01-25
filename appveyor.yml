@@ -70,7 +70,7 @@ environment:
 clone_folder: c:\projects\pytgvoip
 
 cache:
-  - ../openssl -> ci_scripts/01-openssl.bat
+  - ../openssl_1_1_1 -> ci_scripts/01-openssl.bat
   - ../opus -> ci_scripts/02-opus.bat
 
 init:
