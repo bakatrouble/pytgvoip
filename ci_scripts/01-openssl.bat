@@ -6,7 +6,7 @@ if "%PYTHON_ARCH%"=="32" (
     set COMPILER=VC-WIN64A
 )
 
-if exist "openssl_1_1_1/Release/lib/ssleay32.lib" goto ALREADY_BUILT
+if exist "openssl_1_1_1/libssl.lib" goto ALREADY_BUILT
 
 echo Building OpenSSL...
 git clone https://github.com/openssl/openssl.git openssl_1_1_1
@@ -19,7 +19,6 @@ mkdir "out%PYTHON_ARCH%"
 move libcrypto.lib "out%PYTHON_ARCH%"
 move libssl.lib "out%PYTHON_ARCH%"
 move ossl_static.pdb "out%PYTHON_ARCH%"
-nmake clean
 
 cd ..
 goto FINISH
