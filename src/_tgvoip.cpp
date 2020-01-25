@@ -53,7 +53,8 @@ void VoIPController::init() {
             },
             [this](int16_t *buf, size_t size) {
                 this->recv_audio_frame(buf, size);
-            }
+            },
+            [this](int16_t *buf, size_t size) {}
     );
 
     if (!persistent_state_file.empty()) {

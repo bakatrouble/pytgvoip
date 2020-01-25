@@ -34,13 +34,13 @@ Build and install
 .. code-block:: bash
 
     $ cd /tmp
-    $ git clone https://github.com/grishka/libtgvoip/
+    $ git clone https://github.com/telegramdesktop/libtgvoip/
     $ cd libtgvoip
-    $ git checkout b6ac2911  # confirmed to work with this version, others would require testing
+    $ git checkout c5651ff  # confirmed to work with this version, others would require testing
 
     $ export CFLAGS="-O3"
     $ export CXXFLAGS="-O3"
     $ autoreconf --force --install
-    $ ./configure --enable-audio-callback --enable-static=no
+    $ ./configure --enable-audio-callback=yes --enable-static=no
     $ make  # add "-jN" flag for multithreaded build, N=(cpu core count + 1) is recommended
     $ make install
