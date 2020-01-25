@@ -72,8 +72,8 @@ clone_folder: c:\projects\pytgvoip
 cache:
   - ../openssl_1_1_1 -> ci_scripts/01-openssl.bat
   - ../opus -> ci_scripts/02-opus.bat
-  - "C:\Program Files (x86)\nasm" -> ci_scripts/00-init.bat
-  - "C:\strawberry" -> ci_scripts/00-init.bat
+  - C:\Program Files (x86)\nasm -> ci_scripts/00-init.bat
+  - C:\strawberry -> ci_scripts/00-init.bat
 
 init:
   - if "%PYTHON_ARCH%"=="32" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
