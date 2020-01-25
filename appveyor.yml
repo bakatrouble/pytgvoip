@@ -81,11 +81,16 @@ install:
   - curl -L -o nasminst.exe http://libgd.blob.core.windows.net/nasm/nasm-2.07-installer.exe
   - start /wait nasminst.exe /S
   - ps: $env:path="C:\Program Files (x86)\nasm;$($env:path)"
+
+  - if not exist "C:\strawberry" choco install strawberryperl -y
+  - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
+
   - git submodule update --init --recursive
 
 build_script:
