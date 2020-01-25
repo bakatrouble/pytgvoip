@@ -21,4 +21,4 @@ goto FINISH
 echo Opus is already built
 
 :FINISH
-cd libtgvoip
+cd pytgvoip

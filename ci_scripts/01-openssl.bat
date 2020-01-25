@@ -19,6 +19,7 @@ call %DO_MS_SCRIPT%
 nmake -f ms\nt.mak
 nmake -f ms\nt.mak install
 xcopy tmp32\lib.pdb Release\lib\
+nmake -f ms\nt.mak clean
 cd ..
 goto FINISH
 
@@ -26,4 +27,4 @@ goto FINISH
 echo OpenSSL is already built
 
 :FINISH
-cd libtgvoip
+cd pytgvoip
