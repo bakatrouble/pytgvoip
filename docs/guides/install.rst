@@ -6,29 +6,27 @@ Installation
 
 Requirements
 ------------
-On Linux and macOS to install this library you must have ``cmake``, C++11 compatible compiler, Python headers and ``libtgvoip`` installed:
+On Linux and macOS to install this library you must have ``make``, ``cmake``, C++11 compatible compiler, Python headers, Opus and OpenSSL libraries and headers installed:
 
 -   Debian-based distributions
 
     .. code-block:: bash
 
-        $ apt install cmake gcc g++ python3-dev
+        $ apt install make cmake gcc g++ python3-dev gcc g++ openssl libssl-dev libopus0 libopus-dev
 
 
 -   Archlinux-based distributions
 
     .. code-block:: bash
 
-        $ pacman -S cmake gcc python3
+        $ pacman -S make cmake gcc python3 openssl opus
 
 
 -   macOS
 
     .. code-block:: bash
 
-        $ brew install cmake gcc g++ python3
-
-For instructions on building ``libtgvoip`` refer to the corresponding docs section: :ref:`libtgvoip`
+        $ brew install make cmake gcc g++ python3 openssl opus
 
 
 Install pytgvoip

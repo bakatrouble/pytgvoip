@@ -91,7 +91,7 @@ class VoIPController {
 public:
     VoIPController();
     explicit VoIPController(const std::string &_persistent_state_file);
-    ~VoIPController();
+    virtual ~VoIPController();
     void init();
     void start();
     void connect();

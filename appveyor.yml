@@ -15,6 +15,16 @@ environment:
     secure: bBLT+ICiuwrkYZEBrL++Jw==
 
   matrix:
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "32"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
+
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "64"
+      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
+
     - PYTHON: "C:\\Python37"
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "32"

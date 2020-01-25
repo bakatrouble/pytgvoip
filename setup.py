@@ -32,7 +32,7 @@ from distutils.version import LooseVersion
 
 
 def check_libraries():
-    args = 'gcc -ltgvoip'.split()
+    args = 'gcc -lssl -lopus'.split()
     with subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
         stdout, stderr = process.communicate()
         match = re.findall(r'cannot find -l(\w+)', stderr.decode())
@@ -74,7 +74,7 @@ class CMakeBuild(build_ext):
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Release'
-        build_args = ['--config', cfg]
+        build_args = ['--config', cfg, '--target', '_tgvoip']
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]

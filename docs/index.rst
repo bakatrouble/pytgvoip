@@ -73,7 +73,6 @@ Copyright & License
 
     self
     guides/install
-    guides/libtgvoip
     guides/usage
 
 .. toctree::
