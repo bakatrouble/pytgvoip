@@ -39,7 +39,7 @@ add_subdirectory(3rdparty/pybind11)
 include_directories(${TGVOIP_INCLUDE_DIR})
 
 if(WIN32)
-    get_filename_component(lobs_loc .. REALPATH)
+    get_filename_component(libs_loc .. REALPATH)
 else()
     set(DESKTOP_APP_USE_PACKAGED TRUE)
 endif()
