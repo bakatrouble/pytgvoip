@@ -2,7 +2,7 @@ version: 0.0.{build}
 
 branches:
   only:
-    - master
+    - win-ci
 
 skip_non_tags: true
 
@@ -68,6 +68,15 @@ environment:
 
 
 clone_folder: c:\projects\pytgvoip
+shallow_clone: true
+
+cache:
+  - ../openssl -> ci_scripts/01-openssl.bat
+  - ../opus -> ci_scripts/02-opus.bat
+
+init:
+  - if "%PLATFORM%"=="x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  - if "%PLATFORM%"=="x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
@@ -75,36 +84,18 @@ install:
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
-  - appveyor DownloadFile "https://ci.appveyor.com/api/projects/bakatrouble/libtgvoip/artifacts/out/Release/libtgvoip.dll.zip?job=%LIBTGVOIP_JOB%"
-  - 7z x libtgvoip.dll.zip
   - git submodule update --init --recursive
-  - git clone https://github.com/bakatrouble/libtgvoip/ 3rdparty/libtgvoip
-  - cd 3rdparty/libtgvoip
-  - git checkout msvc_static
-  - cd ../..
 
 build_script:
-  - set TGVOIP_INCLUDE_ROOT=3rdparty/libtgvoip
-  - set TGVOIP_LIBRARY_ROOT=.
-  - python setup.py build
+  - cmd: build_scripts/01-openssl.bat
+  - cmd: build_scripts/02-opus.bat
+  - cmd: build_scripts/03-build.bat
 
-after_build:
-  - python setup.py bdist_wheel
-  - ps: ls dist
-
-deploy_script:
-  - echo "Starting Artifact Deployment"
-  # populate pypirc file for twine
-  - echo [distutils]                                  > %USERPROFILE%\\.pypirc
-  - echo index-servers =                             >> %USERPROFILE%\\.pypirc
-  - echo     pypi                                    >> %USERPROFILE%\\.pypirc
-  - echo [pypi]                                      >> %USERPROFILE%\\.pypirc
-  - echo username=bakatrouble                        >> %USERPROFILE%\\.pypirc
-  - echo password=%PYPI_PASSWORD%                    >> %USERPROFILE%\\.pypirc
-  # upload to pypi for windows
-  - set HOME=%USERPROFILE%
-  - twine upload --skip-existing dist/*.whl 2>$null
-  - echo "Finished Artifact Deployment"
-
-artifacts:
-  - path: dist\*
+#after_build:
+#  - cd out\Release
+#  - 7z a libtgvoip.dll.zip libtgvoip.dll libtgvoip.dll.lib
+#  - cd ..\..
+#
+#artifacts:
+#  - path: out\Release\libtgvoip.dll.zip
+#    name: libtgvoip.dll
