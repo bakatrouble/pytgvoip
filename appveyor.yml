@@ -72,23 +72,24 @@ clone_folder: c:\projects\pytgvoip
 cache:
   - ../openssl_1_1_1 -> ci_scripts/01-openssl.bat
   - ../opus -> ci_scripts/02-opus.bat
-  - C:\Program Files (x86)\nasm -> ci_scripts/00-init.bat
-  - C:\strawberry -> ci_scripts/00-init.bat
 
 init:
   - if "%PYTHON_ARCH%"=="32" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%PYTHON_ARCH%"=="64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
+  - if not exist "C:\Program Files (x86)\nasm" choco install nasm -y
+  - if not exist "C:\strawberry" choco install strawberryperl -y
+  - set PATH=C:\Program Files (x86)\nasm;%PATH%
+  - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
-  - set PATH=C:\Program Files (x86)\nasm;C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
   - git submodule update --init --recursive
 
 build_script:
-  - cmd: ci_scripts/00-init.bat
   - cmd: ci_scripts/01-openssl.bat
   - cmd: ci_scripts/02-opus.bat
   - cmd: ci_scripts/03-build.bat
