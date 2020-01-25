@@ -78,18 +78,15 @@ init:
   - if "%PYTHON_ARCH%"=="64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
-  - if not exist "C:\Program Files (x86)\nasm" choco install strawberryperl -y
+  - if not exist "C:\Program Files (x86)\nasm" choco install nasm -y
   - set PATH="C:\Program Files (x86)\nasm;%PATH%"
-
   - if not exist "C:\strawberry" choco install strawberryperl -y
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
-
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
-
   - git submodule update --init --recursive
 
 build_script:
