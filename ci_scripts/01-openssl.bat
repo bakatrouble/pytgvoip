@@ -19,7 +19,6 @@ call %DO_MS_SCRIPT%
 nmake -f ms\nt.mak
 nmake -f ms\nt.mak install
 xcopy tmp32\lib.pdb Release\lib\
-nmake -f ms\nt.mak clean
 cd ..
 goto FINISH
 
