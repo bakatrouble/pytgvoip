@@ -79,7 +79,7 @@ init:
 
 install:
   - if not exist "C:\Program Files (x86)\nasm" choco install nasm -y
-  - set PATH="C:\Program Files (x86)\nasm;%PATH%"
+  - set PATH=C:\Program Files (x86)\nasm;%PATH%
   - if not exist "C:\strawberry" choco install strawberryperl -y
   - set PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
