@@ -78,6 +78,9 @@ init:
   - if "%PYTHON_ARCH%"=="64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
+  - curl -L -o nasminst.exe http://libgd.blob.core.windows.net/nasm/nasm-2.07-installer.exe
+  - start /wait nasminst.exe /S
+  - ps: $env:path="C:\Program Files (x86)\nasm;$($env:path)"
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
   - python --version
