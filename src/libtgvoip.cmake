@@ -109,16 +109,16 @@ else()
         os/darwin/DarwinSpecific.h
 
         # Linux
-        os/linux/AudioInputALSA.cpp
-        os/linux/AudioInputALSA.h
-        os/linux/AudioOutputALSA.cpp
-        os/linux/AudioOutputALSA.h
-        os/linux/AudioOutputPulse.cpp
-        os/linux/AudioOutputPulse.h
-        os/linux/AudioInputPulse.cpp
-        os/linux/AudioInputPulse.h
-        os/linux/AudioPulse.cpp
-        os/linux/AudioPulse.h
+#        os/linux/AudioInputALSA.cpp
+#        os/linux/AudioInputALSA.h
+#        os/linux/AudioOutputALSA.cpp
+#        os/linux/AudioOutputALSA.h
+#        os/linux/AudioOutputPulse.cpp
+#        os/linux/AudioOutputPulse.h
+#        os/linux/AudioInputPulse.cpp
+#        os/linux/AudioInputPulse.h
+#        os/linux/AudioPulse.cpp
+#        os/linux/AudioPulse.h
 
         # POSIX
         os/posix/NetworkSocketPosix.cpp
