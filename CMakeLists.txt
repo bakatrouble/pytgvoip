@@ -69,6 +69,13 @@ target_link_libraries(_tgvoip PRIVATE lib_tgvoip)
 target_compile_options(_tgvoip PRIVATE
         $<$<CXX_COMPILER_ID:GNU>:-Wno-error=deprecated-copy>
 )
+
+if($ENV{PYTHON_ARCH} STREQUAL "32")
+    set(OPUS_ARCH Win32)
+else()
+    set(OPUS_ARCH x64)
+endif()
+target_link_libraries(external_opus INTERFACE ${libs_loc}/opus/win32/VS2015/${OPUS_ARCH}/Release/opus.lib)
 # macOS and its weird paths
 target_include_directories(lib_tgvoip PRIVATE /usr/local/include)
 target_link_directories(_tgvoip PRIVATE /usr/local/lib)
