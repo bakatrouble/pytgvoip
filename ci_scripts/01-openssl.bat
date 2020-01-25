@@ -6,7 +6,7 @@ if "%PYTHON_ARCH%"=="32" (
     set COMPILER=VC-WIN64A
 )
 
-if exist "openssl_1_1_1/libssl.lib" goto ALREADY_BUILT
+if exist "openssl_1_1_1" goto ALREADY_BUILT
 
 echo Building OpenSSL...
 git clone https://github.com/openssl/openssl.git openssl_1_1_1

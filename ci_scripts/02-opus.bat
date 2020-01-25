@@ -6,7 +6,7 @@ if "%PYTHON_ARCH%"=="32" (
     set BUILD_PLATFORM=x64
 )
 
-if exist "opus\win32\VS2015\%BUILD_PLATFORM%\Release\opus.lib" goto ALREADY_BUILT
+if exist "opus" goto ALREADY_BUILT
 
 echo Building Opus...
 git clone https://github.com/telegramdesktop/opus.git
