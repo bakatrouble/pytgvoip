@@ -75,8 +75,8 @@ cache:
   - ../opus -> ci_scripts/02-opus.bat
 
 init:
-  - if "%PLATFORM%"=="x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
-  - if "%PLATFORM%"=="x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - if "%PYTHON_ARCH%"=="86" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  - if "%PYTHON_ARCH%"=="64" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
   - ps: if (-not(Test-Path($env:PYTHON))) { & ci_scripts\install.ps1 }
@@ -84,6 +84,7 @@ install:
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
   - python -m pip install wheel pip twine -U
+  - cd c:\projects\pytgvoip
   - git submodule update --init --recursive
 
 build_script:
