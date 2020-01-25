@@ -1,6 +1,6 @@
 cd ..
 
-if "%PYTHON_ARCH%"=="86" (
+if "%PYTHON_ARCH%"=="32" (
     set BUILD_PLATFORM=Win32
 ) else (
     set BUILD_PLATFORM=x64

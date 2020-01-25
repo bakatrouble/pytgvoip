@@ -1,6 +1,6 @@
 cd ..
 
-if "%PYTHON_ARCH%"=="86" (
+if "%PYTHON_ARCH%"=="32" (
     set COMPILER=VC-WIN32
     set DO_MS_SCRIPT=ms\do_ms.bat
 ) else (

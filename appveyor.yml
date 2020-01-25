@@ -68,14 +68,13 @@ environment:
 
 
 clone_folder: c:\projects\pytgvoip
-shallow_clone: true
 
 cache:
   - ../openssl -> ci_scripts/01-openssl.bat
   - ../opus -> ci_scripts/02-opus.bat
 
 init:
-  - if "%PYTHON_ARCH%"=="86" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
+  - if "%PYTHON_ARCH%"=="32" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%PYTHON_ARCH%"=="64" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 install:
