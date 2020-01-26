@@ -112,8 +112,8 @@ def get_long_description():
 
 def get_data_files():
     data_files = []
-    if platform.system() == 'Windows':
-        data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
+    # if platform.system() == 'Windows':
+    #     data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
     return data_files
 
 
