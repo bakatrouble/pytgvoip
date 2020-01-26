@@ -28,7 +28,6 @@ import subprocess
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-from distutils.version import LooseVersion
 
 
 def check_libraries():
@@ -38,8 +37,8 @@ def check_libraries():
         match = re.findall(r'cannot find -l(\w+)', stderr.decode())
         if match:
             raise RuntimeError(
-                'Following libraries are not installed: {}\nFor guide on installing libtgvoip refer '
-                'https://github.com/bakatrouble/pytgvoip/blob/master/docs/libtgvoip.md'.format(', '.join(match))
+                'Following libraries are not installed: {}\nFor installation guide refer to '
+                'https://pytgvoip.readthedocs.io/en/latest/guides/install.html'.format(', '.join(match))
             )
 
 
@@ -56,11 +55,6 @@ class CMakeBuild(build_ext):
         except OSError:
             raise RuntimeError("CMake must be installed to build the following extensions: " +
                                ", ".join(e.name for e in self.extensions))
-
-        if platform.system() == "Windows":
-            cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-            if cmake_version < '3.1.0':
-                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
         if platform.system() != 'Windows':
             check_libraries()
@@ -80,6 +74,8 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
             if sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
+            else:
+                cmake_args += ['-A', 'Win32']
             build_args += ['--', '/m:{}'.format(multiprocessing.cpu_count() + 1)]
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
@@ -108,13 +104,6 @@ def get_long_description():
         return f.read()
 
 
-def get_data_files():
-    data_files = []
-    if platform.system() == 'Windows':
-        data_files.append(('lib\\site-packages\\', ['libtgvoip.dll']))
-    return data_files
-
-
 setup(
     name='pytgvoip',
     version=get_version(),
@@ -136,7 +125,6 @@ setup(
     packages=['tgvoip'],
     package_dir={'tgvoip': os.path.join('src', 'tgvoip')},
     package_data={'': [os.path.join('src', '_tgvoip.pyi')]},
-    data_files=get_data_files(),
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     classifiers=[
