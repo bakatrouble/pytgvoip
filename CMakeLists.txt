@@ -75,6 +75,8 @@ if($ENV{PYTHON_ARCH} STREQUAL "32")
 else()
     set(OPUS_ARCH x64)
 endif()
+target_link_libraries(external_openssl INTERFACE ${libs_loc}/openssl_1_1_1/out$ENV{PYTHON_ARCH}/libssl.lib
+                                                 ${libs_loc}/openssl_1_1_1/out$ENV{PYTHON_ARCH}/libcrypto.lib)
 target_link_libraries(external_opus INTERFACE ${libs_loc}/opus/win32/VS2015/${OPUS_ARCH}/Release/opus.lib)
 if (WIN32)
         target_compile_options(lib_tgvoip PRIVATE /wd4477 /wd4267)
