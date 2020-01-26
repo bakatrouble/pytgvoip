@@ -79,7 +79,7 @@ target_link_libraries(external_openssl INTERFACE ${libs_loc}/openssl_1_1_1/out$E
                                                  ${libs_loc}/openssl_1_1_1/out$ENV{PYTHON_ARCH}/libcrypto.lib)
 target_link_libraries(external_opus INTERFACE ${libs_loc}/opus/win32/VS2015/${OPUS_ARCH}/Release/opus.lib)
 if (WIN32)
-        target_compile_options(lib_tgvoip PRIVATE /wd4477 /wd4267)
+    target_compile_options(lib_tgvoip PRIVATE /wd4477 /wd4267)
 endif()
 # macOS and its weird paths
 target_include_directories(lib_tgvoip PRIVATE /usr/local/include)
