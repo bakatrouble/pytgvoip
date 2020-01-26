@@ -83,14 +83,14 @@ else()
         # Windows
         os/windows/NetworkSocketWinsock.cpp
         os/windows/NetworkSocketWinsock.h
-        os/windows/AudioInputWave.cpp
-        os/windows/AudioInputWave.h
-        os/windows/AudioOutputWave.cpp
-        os/windows/AudioOutputWave.h
-        os/windows/AudioOutputWASAPI.cpp
-        os/windows/AudioOutputWASAPI.h
-        os/windows/AudioInputWASAPI.cpp
-        os/windows/AudioInputWASAPI.h
+#        os/windows/AudioInputWave.cpp
+#        os/windows/AudioInputWave.h
+#        os/windows/AudioOutputWave.cpp
+#        os/windows/AudioOutputWave.h
+#        os/windows/AudioOutputWASAPI.cpp
+#        os/windows/AudioOutputWASAPI.h
+#        os/windows/AudioInputWASAPI.cpp
+#        os/windows/AudioInputWASAPI.h
         os/windows/WindowsSpecific.cpp
         os/windows/WindowsSpecific.h
 

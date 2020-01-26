@@ -38,7 +38,11 @@ add_definitions(
 add_subdirectory(3rdparty/pybind11)
 include_directories(${TGVOIP_INCLUDE_DIR})
 
-set(DESKTOP_APP_USE_PACKAGED TRUE)
+if(WIN32)
+    get_filename_component(libs_loc .. REALPATH)
+else()
+    set(DESKTOP_APP_USE_PACKAGED TRUE)
+endif()
 include(cmake/nice_target_sources.cmake)
 include(cmake/target_link_frameworks.cmake)
 include(cmake/target_link_static_libraries.cmake)
@@ -65,6 +69,10 @@ target_link_libraries(_tgvoip PRIVATE lib_tgvoip)
 target_compile_options(_tgvoip PRIVATE
         $<$<CXX_COMPILER_ID:GNU>:-Wno-error=deprecated-copy>
 )
+
+if (WIN32)
+    target_compile_options(lib_tgvoip PRIVATE /wd4477 /wd4267)
+endif()
 # macOS and its weird paths
 target_include_directories(lib_tgvoip PRIVATE /usr/local/include)
 target_link_directories(_tgvoip PRIVATE /usr/local/lib)
