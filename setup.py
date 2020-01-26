@@ -82,7 +82,7 @@ class CMakeBuild(build_ext):
                 cmake_args += ['-A', 'x64']
             else:
                 cmake_args += ['-A', 'Win32']
-            build_args += ['--', '/m:{}'.format(multiprocessing.cpu_count() + 1)]
+            # build_args += ['--', '/m:{}'.format(multiprocessing.cpu_count() + 1)]
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j{}'.format(multiprocessing.cpu_count() + 1)]
