@@ -96,14 +96,14 @@ install:
 build_script:
   - cmd: ci_scripts/01-openssl.bat
   - cmd: ci_scripts/02-opus.bat
-  - cmd: ci_scripts/03-build.bat
+#  - cmd: ci_scripts/03-build.bat
 
-after_build:
-  - python setup.py bdist_wheel
-  - ps: ls dist
+#after_build:
+#  - python setup.py bdist_wheel
+#  - ps: ls dist
 
-artifacts:
-  - path: dist\*
+#artifacts:
+#  - path: dist\*
 
 #after_build:
 #  - cd out\Release
