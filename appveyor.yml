@@ -58,16 +58,6 @@ environment:
       PYTHON_ARCH: "64"
       LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
 
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "32"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x86"
-
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "64"
-      LIBTGVOIP_JOB: "Environment: PLATFORM=x64"
-
 
 
 clone_folder: c:\projects\pytgvoip

@@ -23,7 +23,7 @@ Hopefully this module support will be [integrated in Pyrogram itself](https://gi
 * Pre-built Windows wheels in PyPI
 
 ## Requirements
-* Python 3.4 or higher
+* Python 3.5 or higher
 
 Linux, MacOS: (use binary wheels from PyPI for Windows)
 * [libtgvoip](https://pytgvoip.readthedocs.io/en/latest/guides/libtgvoip.html)
