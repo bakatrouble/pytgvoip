@@ -1,6 +1,6 @@
 # pytgvoip
  
-[![Read the Docs](https://img.shields.io/readthedocs/pytgvoip.svg)](https://pytgvoip.rtfd.io) [![PyPI](https://img.shields.io/pypi/v/pytgvoip.svg?style=flat)](https://pypi.org/project/pytgvoip/) [![AppVeyor (windows wheels)](https://img.shields.io/appveyor/ci/bakatrouble/pylibtgvoip.svg?label=windows%20wheels%20build&style=flat)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip) [![AppVeyor (libtgvoip)](https://img.shields.io/appveyor/ci/bakatrouble/libtgvoip.svg?label=libtgvoip%20windows%20build&style=flat)](https://ci.appveyor.com/project/bakatrouble/libtgvoip) ![LGPLv3+](https://img.shields.io/pypi/l/pytgvoip.svg?style=flat)
+[![Read the Docs](https://img.shields.io/readthedocs/pytgvoip.svg)](https://pytgvoip.rtfd.io) [![PyPI](https://img.shields.io/pypi/v/pytgvoip.svg?style=flat)](https://pypi.org/project/pytgvoip/) [![AppVeyor (windows wheels)](https://img.shields.io/appveyor/ci/bakatrouble/pylibtgvoip.svg?label=windows%20wheels%20build&style=flat)](https://ci.appveyor.com/project/bakatrouble/pylibtgvoip) ![LGPLv3+](https://img.shields.io/pypi/l/pytgvoip.svg?style=flat)
  
 **Telegram VoIP Library for Python**
 
