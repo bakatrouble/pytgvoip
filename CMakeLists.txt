@@ -66,9 +66,12 @@ list(APPEND SOURCES
 
 pybind11_add_module(_tgvoip ${SOURCES})
 target_link_libraries(_tgvoip PRIVATE lib_tgvoip)
-target_compile_options(_tgvoip PRIVATE
-        $<$<CXX_COMPILER_ID:GNU>:-Wno-error=deprecated-copy>
-)
+
+if ((CMAKE_CXX_COMPILER_ID STREQUAL GNU) AND NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9))
+    target_compile_options(_tgvoip PRIVATE
+            -Wno-error=deprecated-copy
+    )
+endif()
 
 if (WIN32)
     target_compile_options(lib_tgvoip PRIVATE /wd4477 /wd4267)
