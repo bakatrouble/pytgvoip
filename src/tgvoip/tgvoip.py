@@ -424,6 +424,77 @@ class VoIPController(_VoIPController):
         """
         return super().need_rate()
 
+    @property
+    def native_io(self) -> bool:
+        """
+        Get native I/O status (file I/O implemented in C++)
+
+        Returns:
+            ``bool`` status (enabled or not)
+        """
+        return self._native_io_get()
+
+    @native_io.setter
+    def native_io(self, val: bool) -> None:
+        """
+        Set native I/O status (file I/O implemented in C++)
+
+        Args:
+            val (``bool``): Status value
+        """
+        self._native_io_set(val)
+
+    def play(self, path: str) -> bool:
+        """
+        Add a file to play queue for native I/O
+
+        Args:
+            path (``str``): File path
+
+        Returns:
+            ``bool`` whether opening the file was successful. File is not added to queue on failure.
+        """
+        return super().play(path)
+
+    def play_on_hold(self, paths: List[str]) -> None:
+        """
+        Replace the hold queue for native I/O
+
+        Args:
+            paths (``list`` of ``str``): List of file paths
+        """
+        super().play_on_hold(paths)
+
+    def set_output_file(self, path: str) -> bool:
+        """
+        Set output file for native I/O
+
+        Args:
+            path (``str``): File path
+
+        Returns:
+            ``bool`` whether opening the file was successful. Output file is not replaced on failure.
+        """
+        return super().set_output_file(path)
+
+    def clear_play_queue(self) -> None:
+        """
+        Clear the play queue for native I/O
+        """
+        super().clear_play_queue()
+
+    def clear_hold_queue(self) -> None:
+        """
+        Clear the hold queue for native I/O
+        """
+        super().clear_hold_queue()
+
+    def unset_output_file(self) -> None:
+        """
+        Unset the output file for native I/O
+        """
+        super().unset_output_file()
+
     # native code callback
     def _handle_state_change(self, state: _CallState):
         state = CallState(state)

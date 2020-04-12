@@ -162,6 +162,15 @@ PYBIND11_MODULE(_tgvoip, m) {
             .def("_send_audio_frame_impl", &VoIPController::_send_audio_frame_impl)
             .def("_recv_audio_frame_impl", &VoIPController::_recv_audio_frame_impl) */
 
+            .def("_native_io_get", &VoIPController::_native_io_get)
+            .def("_native_io_set", &VoIPController::_native_io_set)
+            .def("play", &VoIPController::play)
+            .def("play_on_hold", &VoIPController::play_on_hold)
+            .def("set_output_file", &VoIPController::set_output_file)
+            .def("clear_play_queue", &VoIPController::clear_play_queue)
+            .def("clear_hold_queue", &VoIPController::clear_hold_queue)
+            .def("unset_output_file", &VoIPController::unset_output_file)
+
             .def_readonly("persistent_state_file", &VoIPController::persistent_state_file)
             .def_property_readonly_static("LIBTGVOIP_VERSION", &VoIPController::get_version)
             .def_property_readonly_static("CONNECTION_MAX_LAYER", &VoIPController::connection_max_layer);

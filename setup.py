@@ -25,6 +25,7 @@ import re
 import sys
 import platform
 import subprocess
+import shutil
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -88,6 +89,7 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        shutil.copy(os.path.join('src', '_tgvoip.pyi'), extdir)
 
 
 def get_version():
@@ -123,8 +125,7 @@ setup(
     python_required='~=3.5',
     ext_modules=[CMakeExtension('_tgvoip')],
     packages=['tgvoip'],
-    package_dir={'tgvoip': os.path.join('src', 'tgvoip')},
-    package_data={'': [os.path.join('src', '_tgvoip.pyi')]},
+    package_dir={'tgvoip': 'src/tgvoip'},
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     classifiers=[

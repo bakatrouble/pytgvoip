@@ -23,6 +23,7 @@
 #define PYLIBTGVOIP_LIBRARY_H
 
 #include <iostream>
+#include <queue>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <VoIPController.h>
@@ -79,7 +80,7 @@ struct Stats {
 };
 
 struct Endpoint {
-    Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag);
+    Endpoint(int64_t id, std::string ip, std::string ipv6, uint16_t port, const std::string &peer_tag);
     int64_t id;
     std::string ip;
     std::string ipv6;
@@ -131,18 +132,34 @@ public:
     virtual void _handle_signal_bars_change(int count);
     void send_audio_frame(int16_t *buf, size_t size);
     void recv_audio_frame(int16_t *buf, size_t size);
-    virtual char *_send_audio_frame_impl(long len);
-    virtual void _recv_audio_frame_impl(py::bytes frame);
+    virtual char *_send_audio_frame_impl(ulong len);
+    virtual void _recv_audio_frame_impl(const py::bytes &frame);
 
-    static std::string get_version(py::object /* cls */);
-    static int connection_max_layer(py::object /* cls */);
+    static std::string get_version(const py::object& /* cls */);
+    static int connection_max_layer(const py::object& /* cls */);
+
+    bool _native_io_get();
+    void _native_io_set(bool status);
+    bool play(std::string &path);
+    void play_on_hold(std::vector<std::string> &path);
+    bool set_output_file(std::string &path);
+    void clear_play_queue();
+    void clear_hold_queue();
+    void unset_output_file();
+    void _send_audio_frame_native_impl(int16_t *buf, size_t size);
+    void _recv_audio_frame_native_impl(int16_t *buf, size_t size);
 
     std::string persistent_state_file;
 
 private:
-    tgvoip::VoIPController *ctrl;
+    tgvoip::VoIPController *ctrl{};
     tgvoip::Mutex output_mutex;
     tgvoip::Mutex input_mutex;
+
+    bool native_io = false;
+    std::queue<FILE*> input_files;
+    std::queue<FILE*> hold_files;
+    FILE *output_file = nullptr;
 };
 
 class PyVoIPController : public VoIPController {
@@ -154,10 +171,10 @@ class PyVoIPController : public VoIPController {
     void _handle_signal_bars_change(int count) override {
         PYBIND11_OVERLOAD(void, VoIPController, _handle_signal_bars_change, count);
     };
-    char *_send_audio_frame_impl(long len) override {
+    char *_send_audio_frame_impl(ulong len) override {
         PYBIND11_OVERLOAD(char *, VoIPController, _send_audio_frame_impl, len);
     };
-    void _recv_audio_frame_impl(py::bytes frame) override {
+    void _recv_audio_frame_impl(const py::bytes &frame) override {
         PYBIND11_OVERLOAD(void, VoIPController, _recv_audio_frame_impl, frame);
     };
 };

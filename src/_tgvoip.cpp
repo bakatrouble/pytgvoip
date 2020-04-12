@@ -21,12 +21,17 @@
 
 #include "_tgvoip.h"
 #include <iostream>
+#include <utility>
 // #include <chrono>
 
-Endpoint::Endpoint(int64_t id, const std::string &ip, const std::string &ipv6, uint16_t port, const std::string &peer_tag)
-    : id(id), ip(ip), ipv6(ipv6), port(port), peer_tag(peer_tag) {}
+Endpoint::Endpoint(int64_t id, std::string ip, std::string ipv6, uint16_t port, const std::string &peer_tag)
+    : id(id), ip(std::move(ip)), ipv6(std::move(ipv6)), port(port), peer_tag(peer_tag) {}
 
-VoIPController::VoIPController() {}
+VoIPController::VoIPController() {
+    ctrl = nullptr;
+    output_file = nullptr;
+    native_io = false;
+}
 
 VoIPController::VoIPController(const std::string &_persistent_state_file) : VoIPController() {
     if (!_persistent_state_file.empty())
@@ -79,6 +84,9 @@ VoIPController::~VoIPController() {
     ctrl->Stop();
     std::vector<uint8_t> state = ctrl->GetPersistentState();
     delete ctrl;
+    clear_play_queue();
+    clear_hold_queue();
+    unset_output_file();
     if (!persistent_state_file.empty()) {
         FILE *f = fopen(persistent_state_file.c_str(), "w");
         if (f) {
@@ -235,34 +243,141 @@ void VoIPController::_handle_signal_bars_change(int count) {
 void VoIPController::send_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(input_mutex);
     // auto start = std::chrono::high_resolution_clock::now();
-    char *frame = this->_send_audio_frame_impl(sizeof(int16_t) * size);
-    if (frame != nullptr)
-        memcpy(buf, frame, sizeof(int16_t) * size);
+    if (native_io) {
+        this->_send_audio_frame_native_impl(buf, size);
+    } else {
+        char *frame = this->_send_audio_frame_impl(sizeof(int16_t) * size);
+        if (frame != nullptr) {
+            memcpy(buf, frame, sizeof(int16_t) * size);
+        }
+    }
     // auto finish = std::chrono::high_resolution_clock::now();
     // std::cout << "send: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
-char *VoIPController::_send_audio_frame_impl(long len) { return (char *)""; }
+char *VoIPController::_send_audio_frame_impl(ulong len) { return (char *)""; }
+
+void VoIPController::_send_audio_frame_native_impl(int16_t *buf, size_t size) {
+    if (!input_files.empty()) {
+        size_t read_size = fread(buf, sizeof(int16_t), size, input_files.front());
+        if (read_size != size) {
+            fclose(input_files.front());
+            input_files.pop();
+            size_t read_offset = read_size % size;
+            memset(buf + read_offset, 0, size - read_offset);
+        }
+    } else if (!hold_files.empty()) {
+        size_t read_size = fread(buf, sizeof(int16_t), size, hold_files.front());
+        if (read_size != size) {
+            fseek(hold_files.front(), 0, SEEK_SET);
+            hold_files.push(hold_files.front());
+            hold_files.pop();
+            size_t read_offset = read_size % size;
+            memset(buf + read_offset, 0, size - read_offset);
+        }
+    }
+}
 
 void VoIPController::recv_audio_frame(int16_t *buf, size_t size) {
     tgvoip::MutexGuard m(output_mutex);
     // auto start = std::chrono::high_resolution_clock::now();
     if (buf != nullptr) {
-        std::string frame((const char *) buf, sizeof(int16_t) * size);
-        this->_recv_audio_frame_impl(frame);
+        if (native_io) {
+            this->_recv_audio_frame_native_impl(buf, size);
+        } else {
+            std::string frame((const char *) buf, sizeof(int16_t) * size);
+            this->_recv_audio_frame_impl(frame);
+        }
     }
     // auto finish = std::chrono::high_resolution_clock::now();
     // std::cout << "recv: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
-void VoIPController::_recv_audio_frame_impl(py::bytes frame) {}
+void VoIPController::_recv_audio_frame_impl(const py::bytes &frame) {}
 
-std::string VoIPController::get_version(py::object /* cls */) {
+void VoIPController::_recv_audio_frame_native_impl(int16_t *buf, size_t size) {
+    if (output_file != nullptr) {
+        size_t written_size = fwrite(buf, sizeof(int16_t), size, output_file);
+        if (written_size != size) {
+            std::cerr << "Written size (" << written_size << ") does not match expected (" << size << ")" << std::endl;
+        }
+    }
+}
+
+std::string VoIPController::get_version(const py::object& /* cls */) {
     return tgvoip::VoIPController::GetVersion();
 }
 
-int VoIPController::connection_max_layer(py::object /* cls */) {
+int VoIPController::connection_max_layer(const py::object& /* cls */) {
     return tgvoip::VoIPController::GetConnectionMaxLayer();
+}
+
+bool VoIPController::_native_io_get() {
+    return native_io;
+}
+
+void VoIPController::_native_io_set(bool status) {
+    native_io = status;
+}
+
+bool VoIPController::play(std::string &path) {
+    FILE *tmp = fopen(path.c_str(), "rb");
+    if (tmp == nullptr) {
+        std::cerr << "Unable to open file " << path << " for reading" << std::endl;
+        return false;
+    }
+    tgvoip::MutexGuard m(input_mutex);
+    input_files.push(tmp);
+    return true;
+}
+
+void VoIPController::play_on_hold(std::vector<std::string> &paths) {
+    clear_hold_queue();
+    tgvoip::MutexGuard m(input_mutex);
+    for (auto &path : paths) {
+        FILE *tmp = fopen(path.c_str(), "rb");
+        if (tmp == nullptr) {
+            std::cerr << "Unable to open file " << path << " for reading" << std::endl;
+        } else {
+            hold_files.push(tmp);
+        }
+    }
+}
+
+bool VoIPController::set_output_file(std::string &path) {
+    FILE *tmp = fopen(path.c_str(), "wb");
+    if (tmp == nullptr) {
+        std::cerr << "Unable to open file " << path << " for writing" << std::endl;
+        return false;
+    }
+    unset_output_file();
+    tgvoip::MutexGuard m(output_mutex);
+    output_file = tmp;
+    return true;
+}
+
+void VoIPController::clear_play_queue() {
+    tgvoip::MutexGuard m(input_mutex);
+    while (!input_files.empty()) {
+        fclose(input_files.front());
+        input_files.pop();
+    }
+}
+
+void VoIPController::clear_hold_queue() {
+    tgvoip::MutexGuard m(input_mutex);
+    while (!hold_files.empty()) {
+        fclose(hold_files.front());
+        hold_files.pop();
+    }
+}
+
+void VoIPController::unset_output_file() {
+    if (output_file != nullptr) {
+        tgvoip::MutexGuard m(output_mutex);
+        fclose(output_file);
+        output_file = nullptr;
+    }
 }
 
 void VoIPServerConfig::set_config(std::string &json_str) {
