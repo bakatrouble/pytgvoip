@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # PytgVoIP - Telegram VoIP Library for Python
-# Copyright (C) 2019 bakatrouble <https://github.com/bakatrouble>
+# Copyright (C) 2020 bakatrouble <https://github.com/bakatrouble>
 #
 # This file is part of PytgVoIP.
 #
