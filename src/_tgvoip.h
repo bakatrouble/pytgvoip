@@ -132,7 +132,7 @@ public:
     virtual void _handle_signal_bars_change(int count);
     void send_audio_frame(int16_t *buf, size_t size);
     void recv_audio_frame(int16_t *buf, size_t size);
-    virtual char *_send_audio_frame_impl(ulong len);
+    virtual char *_send_audio_frame_impl(unsigned long len);
     virtual void _recv_audio_frame_impl(const py::bytes &frame);
 
     static std::string get_version(const py::object& /* cls */);
@@ -171,7 +171,7 @@ class PyVoIPController : public VoIPController {
     void _handle_signal_bars_change(int count) override {
         PYBIND11_OVERLOAD(void, VoIPController, _handle_signal_bars_change, count);
     };
-    char *_send_audio_frame_impl(ulong len) override {
+    char *_send_audio_frame_impl(unsigned long len) override {
         PYBIND11_OVERLOAD(char *, VoIPController, _send_audio_frame_impl, len);
     };
     void _recv_audio_frame_impl(const py::bytes &frame) override {

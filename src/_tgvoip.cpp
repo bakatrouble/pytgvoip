@@ -255,7 +255,7 @@ void VoIPController::send_audio_frame(int16_t *buf, size_t size) {
     // std::cout << "send: " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << std::endl;
 }
 
-char *VoIPController::_send_audio_frame_impl(ulong len) { return (char *)""; }
+char *VoIPController::_send_audio_frame_impl(unsigned long len) { return (char *)""; }
 
 void VoIPController::_send_audio_frame_native_impl(int16_t *buf, size_t size) {
     if (!input_files.empty()) {
