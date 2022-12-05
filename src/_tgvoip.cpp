@@ -81,7 +81,6 @@ void VoIPController::init() {
 }
 
 VoIPController::~VoIPController() {
-    ctrl->Stop();
     std::vector<uint8_t> state = ctrl->GetPersistentState();
     delete ctrl;
     clear_play_queue();
@@ -102,6 +101,10 @@ void VoIPController::start() {
 
 void VoIPController::connect() {
     ctrl->Connect();
+}
+
+void VoIPController::stop() {
+    ctrl->Stop();
 }
 
 void VoIPController::set_proxy(const std::string &address, uint16_t port, const std::string &username, const std::string &password) {

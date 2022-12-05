@@ -196,6 +196,12 @@ class VoIPController(_VoIPController):
         Start the call
         """
         super().connect()
+    
+    def stop(self):
+        """
+        Stop the controller
+        """
+        super().stop()
 
     def set_proxy(self, address: str, port: int = 1080, username: str = '', password: str = ''):
         """

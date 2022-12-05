@@ -133,6 +133,7 @@ PYBIND11_MODULE(_tgvoip, m) {
             .def("_init", &VoIPController::init)
             .def("start", &VoIPController::start, "Start VoIP controller")
             .def("connect", &VoIPController::connect, "Start call")
+            .def("stop", &VoIPController::stop, "Stop VoIP controller")
             .def("set_proxy", &VoIPController::set_proxy)
             .def("set_encryption_key", &VoIPController::set_encryption_key)
             .def("set_remote_endpoints", &VoIPController::set_remote_endpoints)

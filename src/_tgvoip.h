@@ -96,6 +96,7 @@ public:
     void init();
     void start();
     void connect();
+    void stop();
     void set_proxy(const std::string &address, uint16_t port, const std::string &username, const std::string &password);
     void set_encryption_key(char *key, bool is_outgoing);
     void set_remote_endpoints(std::list<Endpoint> endpoints, bool allow_p2p, bool tcp, int connection_max_layer);
